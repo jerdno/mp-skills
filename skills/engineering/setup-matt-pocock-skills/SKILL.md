@@ -41,7 +41,7 @@ Default posture: these skills were designed for GitHub. If a `git remote` points
 
 - **GitHub** — issues live in the repo's GitHub Issues (uses the `gh` CLI)
 - **GitLab** — issues live in the repo's GitLab Issues (uses the [`glab`](https://gitlab.com/gitlab-org/cli) CLI)
-- **Jira** — issues live in a Jira Cloud project (uses the [`acli`](https://developer.atlassian.com/cloud/acli/guides/introduction/) Atlassian CLI)
+- **Jira** — issues live in a Jira Cloud project (uses the [`acli`](https://developer.atlassian.com/cloud/acli/guides/introduction/) Atlassian CLI). If chosen, also ask for the **project key** (e.g. `RA`) and the **Jira site** (e.g. `vacuum.atlassian.net`) — `acli` cannot infer either from `git remote`, so both must be pinned per-repo. They become the `<PROJECT>` and `<SITE>` placeholders the seed template substitutes.
 - **Local markdown** — issues live as files under `.scratch/<feature>/` in this repo (good for solo projects or repos without a remote)
 - **Other** (Linear, etc.) — ask the user to describe the workflow in one paragraph; the skill will record it as freeform prose
 
@@ -111,7 +111,7 @@ Then write the three docs files using the seed templates in this skill folder as
 
 - [issue-tracker-github.md](./issue-tracker-github.md) — GitHub issue tracker
 - [issue-tracker-gitlab.md](./issue-tracker-gitlab.md) — GitLab issue tracker
-- [issue-tracker-jira.md](./issue-tracker-jira.md) — Jira issue tracker
+- [issue-tracker-jira.md](./issue-tracker-jira.md) — Jira issue tracker (substitute `<PROJECT>` and `<SITE>` with the values gathered in Section A before writing to `docs/agents/`)
 - [issue-tracker-local.md](./issue-tracker-local.md) — local-markdown issue tracker
 - [triage-labels.md](./triage-labels.md) — label mapping
 - [domain.md](./domain.md) — domain doc consumer rules + layout
