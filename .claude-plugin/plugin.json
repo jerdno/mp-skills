@@ -1,7 +1,9 @@
 {
   "name": "mattpocock-skills",
   "skills": [
+    "./skills/engineering/api-contract-change",
     "./skills/engineering/diagnose",
+    "./skills/engineering/graphql-api-change",
     "./skills/engineering/grill-with-docs",
     "./skills/engineering/triage",
     "./skills/engineering/improve-codebase-architecture",
