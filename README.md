@@ -146,7 +146,9 @@ Software engineering fundamentals matter more than ever. These skills are my bes
 
 Skills I use daily for code work.
 
+- **[api-contract-change](./skills/engineering/api-contract-change/SKILL.md)** — Walk through a contract-first OpenAPI change across separate schemas and service repos: bump the contract, open the PR to trigger SDK generation, wait for SNAPSHOT, then update the consuming service.
 - **[diagnose](./skills/engineering/diagnose/SKILL.md)** — Disciplined diagnosis loop for hard bugs and performance regressions: reproduce → minimise → hypothesise → instrument → fix → regression-test.
+- **[graphql-api-change](./skills/engineering/graphql-api-change/SKILL.md)** — Walk through a schema-first GraphQL change across separate schemas, server, and client repos: edit the schema, regenerate the merged schema, wait for SNAPSHOT, then update server resolvers and client operations.
 - **[grill-with-docs](./skills/engineering/grill-with-docs/SKILL.md)** — Grilling session that challenges your plan against the existing domain model, sharpens terminology, and updates `CONTEXT.md` and ADRs inline.
 - **[triage](./skills/engineering/triage/SKILL.md)** — Triage issues through a state machine of triage roles.
 - **[improve-codebase-architecture](./skills/engineering/improve-codebase-architecture/SKILL.md)** — Find deepening opportunities in a codebase, informed by the domain language in `CONTEXT.md` and the decisions in `docs/adr/`.
