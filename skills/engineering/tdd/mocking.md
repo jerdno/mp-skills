@@ -1,6 +1,6 @@
 # When to Mock
 
-Mock at the boundary of **what's under test**, not just the system boundary.
+Mock at the boundary of **what's under test**.
 
 - **Unit/component test** focused on service X — mock X's collaborators, even internal classes, because X is the system under test.
 - **API/integration test** focused on an endpoint — don't mock the internal implementation chain (services, repositories you own). Mock only what's truly external: HTTP clients to other services, third-party SDKs, message brokers, time, randomness, file system.
