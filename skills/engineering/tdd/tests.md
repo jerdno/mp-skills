@@ -1,12 +1,28 @@
 # Good and Bad Tests
 
+## Naming
+
+Format: `<expected effect> when <test trigger>`. Present tense both halves. Name states observable behaviour and what caused it.
+
+```typescript
+// Good
+test("Customer is created when onboarding workflow runs", ...)
+test("Payment validation fails when amount is negative", ...)
+
+// Bad
+test("Customer can be created", ...)    // capability, no trigger
+test("validatePayment works", ...)      // describes method, not behaviour
+```
+
+The `when` clause forces naming the trigger in domain terms.
+
 ## Good Tests
 
 **Integration-style**: Test through real interfaces, not mocks of internal parts.
 
 ```typescript
 // GOOD: Tests observable behavior
-test("user can checkout with valid cart", async () => {
+test("Checkout succeeds when cart and payment are valid", async () => {
   const cart = createCart();
   cart.add(product);
   const result = await checkout(cart, paymentMethod);
@@ -53,7 +69,7 @@ test("createUser saves to database", async () => {
 });
 
 // GOOD: Verifies through interface
-test("createUser makes user retrievable", async () => {
+test("User is retrievable when newly created", async () => {
   const user = await createUser({ name: "Alice" });
   const retrieved = await getUser(user.id);
   expect(retrieved.name).toBe("Alice");
