@@ -13,6 +13,21 @@ A focused companion to the generic `drawio` skill, for one job: producing a publ
 
 Most iteration loops come from skipping one of these. Layout problems are visible in 5 seconds in a PNG; they're invisible reading XML.
 
+## Static export does no obstacle avoidance (the assumption that bites)
+
+CLI export (`drawio -x` → PNG/SVG/PDF) runs the plain orthogonal router: it picks endpoints and right-angle paths, but it does **not** route around boxes in the way. The raw route in the XML is what renders — so an auto-routed edge whose straight path crosses an unrelated box is drawn **straight through it**, and a midpoint label lands on whatever it overlaps. (Verified: a no-waypoint edge between two boxes with a third box dead between them renders as a straight line bisecting the middle box.) Some interactive/embedded viewers apply an extra layout pass that nudges edges off boxes; **the CLI export does not, and there's no flag to switch it on.** Three rules follow, in order:
+
+- **Avoid the crossing by layout first.** The cheapest fix is to place boxes so no edge needs to cross an unrelated one — reserve corridors, keep a hub's column clear (Problems 1, 2, 5). An edge that crosses nothing needs no pinning and survives later edits.
+- **Pin only the edges that genuinely can't avoid a box.** For those, set `exitX/exitY` + `entryX/entryY` and add waypoints to route down a clear corridor (Problems 1–5). Don't pin edges that already render clean — hard-coded routes go stale the moment you move a shape (Problem 7), so pinning everything just buys future breakage.
+- **Don't trust the eyeball alone — it misses fine clips.** A line grazing a tag corner is invisible at fit-to-page zoom and obvious to the reader at 100%. Gate on geometry with the bundled checker (in this skill's `scripts/` folder):
+
+  ```bash
+  python3 scripts/check-overlaps.py yourfile.drawio     # one file
+  python3 scripts/check-overlaps.py *.drawio            # whole folder
+  ```
+
+  It reconstructs every edge's route from its exit/entry points + waypoints and reports any segment crossing an unrelated box, per page (boundaries with `fillColor=none` are correctly ignored). `CLEAN` per file, or it names the offending edge and box. Pinned (waypointed) edges get an exact verdict; auto-routed edges get a `WARN` — resolve it by re-laying-out to remove the crossing, or by pinning that one edge. This is the gate that catches the clips three rounds of eyeballing won't.
+
 ## Multiple views → ONE .drawio file with tabs (not separate files)
 
 When the user wants more than one C4 view (context + container, or container + component, or all three), put them as separate **pages** inside a single `.drawio` file. draw.io renders pages as tabs along the bottom. The XML pattern:
@@ -163,7 +178,7 @@ Symptom: Icon was at `(800, 500)`, you moved it to `(600, 500)`, but an edge to 
 
 Root cause: explicit waypoints are coordinates, not symbolic references. They don't follow the shape.
 
-Fix: when moving a shape, **search the XML for its old position values and update or delete waypoints** that reference them. Or, where possible, prefer auto-routed orthogonal paths (no waypoints) over manual waypoints — they re-route when the shape moves.
+Fix: when moving a shape, **search the XML for its old position values and update or delete waypoints** that reference them. Or, where possible, prefer auto-routed orthogonal paths (no waypoints) over manual waypoints — they re-route when the shape moves. *(Caveat: auto-routing re-flows on edit, but in CLI export it does no obstacle avoidance — an auto-routed path can render straight through a box. Fix that by layout where you can; pin with exit/entry + waypoints only if the crossing is unavoidable, and let `check-overlaps.py` confirm. See "Static export does no obstacle avoidance" above.)*
 
 ### Problem 8 — Copy-pasted edge, forgot to fix `source` / `target`
 
@@ -177,6 +192,32 @@ Symptom: A lane label or boundary title renders truncated ("Data & sto" instead 
 
 Fix: text widths must accommodate the **longest possible string at the chosen font size**. When in doubt, set the width generously (200–300 px for short titles) — empty space is free, truncation isn't.
 
+### Problem 10 — Many edges meet one hub, labels pile up at the midpoints
+
+Symptom: a central node has 5–6 edges; their default midpoint labels cluster on top of each other near the hub (common in context diagrams and fee maps where everything points at one system).
+
+Root cause: every edge's label defaults to the geometric midpoint, and the midpoints bunch where the edges converge.
+
+Fixes:
+1. **Fan the hub's connection points** — give each edge a distinct `exitX/exitY` (or `entryX/entryY`) so they leave/enter different sides instead of stacking on one.
+2. **Move the label off the midpoint** with the edge geometry's own `x` (position along the edge: −1 = source … 0 = middle … 1 = target) and `y` (perpendicular pixel offset):
+   ```xml
+   <mxGeometry x="-0.4" y="-12" relative="1" as="geometry"/>
+   ```
+   `x=-0.4` slides the label 40 % toward the source onto a clearer segment; `y=-12` lifts it 12 px off the line.
+3. **Keep on-edge labels short** — a step number or 2–3 words. Push figures / long detail into a small positioned tag box next to the edge, not into the edge label. (A short label is also far less likely to overlap anything in the first place.)
+
+### Problem 11 — Arrowhead runs *along* the target's edge instead of pointing into it
+
+Symptom: an edge reaches its target but the arrowhead sits sideways against the border (or floats near a corner), grazing the box rather than landing on it.
+
+Root cause: a fixed `entryX/entryY` pins the arrow to one side, but the route arrives from a direction *parallel* to that side, so draw.io makes the final stub run along the edge — the arrowhead ends up parallel to the border. It bites specifically when **explicit waypoints** force the approach; a no-waypoint edge auto-attaches perpendicular at the perimeter and is fine. (Not a rounded-corner problem — it happens on the flat part of the edge too.)
+
+Fixes:
+1. **Drop the fixed `entryX/entryY`** and let draw.io attach at the perimeter — it brings the arrow in perpendicular to whichever side the route approaches. Simplest fix and usually right (see "pin only the edges that genuinely can't avoid a box"); perimeter attach *is* computed in static CLI export, so it's safe here. It may change *which* side the arrow lands on — if a specific side carries meaning, use fix 2.
+2. **Align the last waypoint with the entry** — same `x` for a top/bottom entry, same `y` for a left/right entry — so the final segment is perpendicular. Or move the entry to the side the edge actually approaches from.
+3. `check-overlaps.py` flags this as a conservative `ARROW` warning. It can over-flag (an arrowhead that's actually fine but whose routing skims the border), so confirm flagged edges in the PNG.
+
 ## Pre-flight verification (before saying "done")
 
 1. **XML well-formedness.** `xmllint --noout file.drawio` returns clean. Otherwise the file won't even open in draw.io.
@@ -185,15 +226,18 @@ Fix: text widths must accommodate the **longest possible string at the chosen fo
    drawio -x -f png -b 20 -p 1 -o page1.png file.drawio
    drawio -x -f png -b 20 -p 2 -o page2.png file.drawio
    ```
-3. **Eyeball each PNG.** For every page, scan for:
-   - [ ] No edge label sits on top of an icon or another label
-   - [ ] No edge passes through an unrelated shape (unless intentional, e.g., crossing a container boundary)
+3. **Run the geometric overlap checker — the gate the eye fails at:**
+   ```bash
+   python3 scripts/check-overlaps.py file.drawio
+   ```
+   Must print `CLEAN` for every page. Fix every `ISSUE` (edge routes through a box) — first by re-laying-out to remove the crossing, then by pinning if it's unavoidable; resolve every `WARN` (auto-routed edge that *may* cross) the same way and re-run. An `ARROW` line flags a likely sideways arrowhead (Problem 11) — fix it or confirm it in the PNG. This is what catches the grazing clips a downscaled PNG hides — don't skip it on the assumption the eyeball covered it.
+4. **Eyeball each PNG** for what geometry can't check:
    - [ ] Persons (silhouette) are visually distinguishable from systems (rectangles) at a glance
-   - [ ] No two labels are stacked or overlapping
    - [ ] Every relationship's direction matches the verb tense ("X sends to Y" = arrow from X to Y)
    - [ ] Lane labels / boundary titles are visible and not truncated
    - [ ] Page margins look right — no shapes clipped at the edges
-4. **Sanity-check edges.** Quick pass through XML: for each edge, confirm `source=` and `target=` are the IDs you actually intend.
+   - [ ] (edge-through-box and label-on-box overlaps belong to step 3, not the eye)
+5. **Sanity-check edges.** Quick pass through XML: for each edge, confirm `source=` and `target=` are the IDs you actually intend.
 
 If any check fails, fix and re-render. The render-fix loop is ~30 seconds — much cheaper than shipping a diagram the user has to point at and call out problems in.
 
@@ -212,6 +256,10 @@ If any check fails, fix and re-render. The render-fix loop is ~30 seconds — mu
 | CLI exported the wrong page | Page index is 1-based (`-p 1` for the first page) |
 | Lane label truncated | Increase the width of the text mxCell |
 | Edge waypoint references old shape position | Search for the old coordinates and update or delete the waypoint |
+| Eyeballed the PNG, shipped a grazing clip | The eye misses fine clips on a downscaled PNG — gate on `check-overlaps.py`, which prints CLEAN or names the edge + box |
+| Auto-routed edge sailed through a box in the static export | CLI export does no obstacle avoidance — re-lay-out to clear the crossing, or pin that one edge with exit/entry + waypoints, then confirm with `check-overlaps.py` |
+| Hub's edge labels piled up at their midpoints | Fan exit points + move labels off-midpoint with `mxGeometry x/y` (Problem 10) |
+| Arrowhead sits sideways against the target's border | Fixed entry fights a waypointed approach — drop `entryX/entryY` (perimeter auto-attach) or align the last waypoint with the entry (Problem 11) |
 
 ## What's NOT in this skill (by design)
 

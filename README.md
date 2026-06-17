@@ -156,6 +156,7 @@ Skills I use daily for code work.
 - **[to-prd](./skills/engineering/to-prd/SKILL.md)** — Turn the current conversation context into a PRD and submit it as a GitHub issue. No interview — just synthesizes what you've already discussed.
 - **[zoom-out](./skills/engineering/zoom-out/SKILL.md)** — Tell the agent to zoom out and give broader context or a higher-level perspective on an unfamiliar section of code.
 - **[prototype](./skills/engineering/prototype/SKILL.md)** — Build a throwaway prototype to flesh out a design — either a runnable terminal app for state/business-logic questions, or several radically different UI variations toggleable from one route.
+- **[c4-architecture-diagrams](./skills/engineering/c4-architecture-diagrams/SKILL.md)** — Lay out publication-ready C4 diagrams (context/container/component) in draw.io on the first render: real stencils so actors aren't mistaken for systems, edge routing that keeps labels readable, multiple views as tabs in one file, and a bundled geometric overlap checker for static exports.
 
 ### Productivity
 
