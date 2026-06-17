@@ -2,7 +2,9 @@
 
 Skills I use daily for code work.
 
+- **[api-contract-change](./api-contract-change/SKILL.md)** — Walk through a contract-first OpenAPI change across separate schemas and service repos.
 - **[diagnose](./diagnose/SKILL.md)** — Disciplined diagnosis loop for hard bugs and performance regressions: reproduce → minimise → hypothesise → instrument → fix → regression-test.
+- **[graphql-api-change](./graphql-api-change/SKILL.md)** — Walk through a schema-first GraphQL change across separate schemas, server, and client repos.
 - **[grill-with-docs](./grill-with-docs/SKILL.md)** — Grilling session that challenges your plan against the existing domain model, sharpens terminology, and updates `CONTEXT.md` and ADRs inline.
 - **[triage](./triage/SKILL.md)** — Triage issues through a state machine of triage roles.
 - **[improve-codebase-architecture](./improve-codebase-architecture/SKILL.md)** — Find deepening opportunities in a codebase, informed by the domain language in `CONTEXT.md` and the decisions in `docs/adr/`.
