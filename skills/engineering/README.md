@@ -13,7 +13,6 @@ Reachable only when you type them (`disable-model-invocation: true`).
 - **[setup-matt-pocock-skills](./setup-matt-pocock-skills/SKILL.md)** — Configure this repo for the engineering skills (issue tracker, triage labels, domain doc layout). Run once per repo.
 - **[to-issues](./to-issues/SKILL.md)** — Break any plan, spec, or PRD into independently-grabbable issues using vertical slices.
 - **[to-prd](./to-prd/SKILL.md)** — Turn the current conversation into a PRD and publish it to the issue tracker.
-- **[c4-architecture-diagrams](./c4-architecture-diagrams/SKILL.md)** — Lay out publication-ready C4 diagrams (context/container/component) in draw.io on the first render: real stencils so actors aren't mistaken for systems, edge routing that keeps labels readable, multiple views as tabs in one file, and a bundled geometric overlap checker for static exports.
 
 ## Model-invoked
 
@@ -27,3 +26,4 @@ Model- or user-reachable (rich trigger phrasing so the model can reach for them)
 - **[domain-modeling](./domain-modeling/SKILL.md)** — Actively build and sharpen a project's domain model — challenge terms, stress-test with scenarios, update `CONTEXT.md` and ADRs inline.
 - **[codebase-design](./codebase-design/SKILL.md)** — Shared discipline and vocabulary for designing deep modules: small interfaces, clean seams, testable through the interface.
 - **[code-review](./code-review/SKILL.md)** — Two-axis review of the diff since a fixed point: **Standards** (does it follow the repo's coding standards, plus a Fowler smell baseline?) and **Spec** (does it faithfully implement the originating issue/PRD?), run as parallel sub-agents.
+- **[c4-architecture-diagrams](./c4-architecture-diagrams/SKILL.md)** — Lay out publication-ready C4 diagrams (context/container/component) in draw.io on the first render: real stencils so actors aren't mistaken for systems, edge routing that keeps labels readable, multiple views as tabs in one file, and a bundled geometric overlap checker for static exports.

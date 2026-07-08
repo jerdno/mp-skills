@@ -156,7 +156,6 @@ Skills I use daily for code work.
 - **[setup-matt-pocock-skills](./skills/engineering/setup-matt-pocock-skills/SKILL.md)** — Configure this repo for the engineering skills (issue tracker, triage labels, domain doc layout). Run once per repo before using the other engineering skills.
 - **[to-issues](./skills/engineering/to-issues/SKILL.md)** — Break any plan, spec, or PRD into independently-grabbable issues using vertical slices.
 - **[to-prd](./skills/engineering/to-prd/SKILL.md)** — Turn the current conversation into a PRD and publish it to the issue tracker. No interview — just synthesizes what you've already discussed.
-- **[c4-architecture-diagrams](./skills/engineering/c4-architecture-diagrams/SKILL.md)** — Lay out publication-ready C4 diagrams (context/container/component) in draw.io on the first render: real stencils so actors aren't mistaken for systems, edge routing that keeps labels readable, multiple views as tabs in one file, and a bundled geometric overlap checker for static exports.
 
 **Model-invoked**
 
@@ -167,6 +166,7 @@ Skills I use daily for code work.
 - **[domain-modeling](./skills/engineering/domain-modeling/SKILL.md)** — Actively build and sharpen a project's domain model — challenge terms against the glossary, stress-test with edge-case scenarios, and update `CONTEXT.md` and ADRs inline.
 - **[codebase-design](./skills/engineering/codebase-design/SKILL.md)** — Shared discipline and vocabulary for designing deep modules: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface.
 - **[code-review](./skills/engineering/code-review/SKILL.md)** — Two-axis review of the diff since a fixed point: **Standards** (does it follow the repo's coding standards, plus a Fowler smell baseline?) and **Spec** (does it faithfully implement the originating issue/PRD?), run as parallel sub-agents so neither pollutes the other.
+- **[c4-architecture-diagrams](./c4-architecture-diagrams/SKILL.md)** — Lay out publication-ready C4 diagrams (context/container/component) in draw.io on the first render: real stencils so actors aren't mistaken for systems, edge routing that keeps labels readable, multiple views as tabs in one file, and a bundled geometric overlap checker for static exports.
 
 ### Productivity
 
