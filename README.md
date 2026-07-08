@@ -159,6 +159,8 @@ Skills I use daily for code work.
 
 **Model-invoked**
 
+- **[api-contract-change](./skills/engineering/api-contract-change/SKILL.md)** — Walk through a contract-first OpenAPI change across separate schemas and service repos: bump the contract, open the PR to trigger SDK generation, wait for SNAPSHOT, then update the consuming service.
+- **[graphql-api-change](./skills/engineering/graphql-api-change/SKILL.md)** — Walk through a schema-first GraphQL change across separate schemas, server, and client repos: edit the schema, regenerate the merged schema, wait for SNAPSHOT, then update server resolvers and client operations.
 - **[prototype](./skills/engineering/prototype/SKILL.md)** — Build a throwaway prototype to answer a design question — a runnable terminal app for state/logic questions, or several radically different UI variations toggleable from one route.
 - **[diagnosing-bugs](./skills/engineering/diagnosing-bugs/SKILL.md)** — Disciplined diagnosis loop for hard bugs and performance regressions: reproduce → minimise → hypothesise → instrument → fix → regression-test.
 - **[research](./skills/engineering/research/SKILL.md)** — Investigate a question against high-trust primary sources and capture the findings as a cited Markdown file in the repo, run as a background agent.
