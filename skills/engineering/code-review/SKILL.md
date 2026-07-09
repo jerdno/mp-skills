@@ -8,7 +8,7 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 - **Standards** — does the code conform to this repo's documented coding standards?
 - **Spec** — does the code faithfully implement the originating issue / PRD / spec?
 
-Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
+Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings. By default each axis runs on the OpenAI Codex plugin's `codex:codex-rescue` agent; `general-purpose` sub-agents are the backup when Codex is missing or a Codex run fails (see step 4).
 
 The issue tracker should have been provided to you — run `/setup-matt-pocock-skills` if `docs/agents/issue-tracker.md` is missing.
 
@@ -57,7 +57,19 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 ### 4. Spawn both sub-agents in parallel
 
-Send a single message with two `Agent` tool calls. Use the `general-purpose` subagent for both.
+Send a single message with two `Agent` tool calls — one per axis.
+
+**Engine — Codex by default, `general-purpose` as backup.** If the `codex:codex-rescue` agent type is available (the OpenAI Codex plugin is installed), use it for both axes. Use `general-purpose` only when that agent type isn't listed.
+
+`codex:codex-rescue` is a thin forwarder to the Codex CLI, so when using it shape each axis prompt accordingly:
+
+- Include the routing flag `--wait` in the request so the run stays in the foreground and the full review comes back as the agent's reply — a background run returns only a job stub, which breaks step 5. Also tell the agent to give its Bash call the maximum timeout (600000 ms); a Codex review can outlive the default.
+- State explicitly that this is a **read-only review — make no edits** (the forwarder otherwise defaults to a write-capable run).
+- Keep the prompt fully self-contained. Codex runs in the same working directory, so the diff command, standards-file paths, and spec path work as-is — but paste the smell baseline and any tracker-fetched spec contents in full, exactly as you would for `general-purpose`.
+
+The axis briefs below are engine-agnostic — include the same content either way.
+
+**Fallback.** If a Codex axis run errors, returns nothing, or returns a setup/auth-required message instead of findings, re-run just that axis on `general-purpose` with the same brief (minus the Codex routing lines). Note the substitution in the final report, and if the cause was setup/auth, point the user at `/codex:setup` once so the default path works next time.
 
 **Standards sub-agent prompt** — include:
 
