@@ -68,11 +68,15 @@ Expected structure:
         "/absolute/path/to/web-client"
       ],
       "schemas_repository": "/absolute/path/to/contracts-repo",
-      "registry_login_command": "<command to refresh registry token, optional>"
+      "registry_login_command": ["<command to refresh registry token>", "<optional additional command>"]
     }
   }
 }
 ```
+
+`registry_login_command` may be a single string **or a list of commands**. When present, run
+**every** command in order (see Step 3). A consuming repo's `CLAUDE.md` can override this: if it
+documents a specific setup/registry command, run only that one.
 
 ### Identify the current project
 
@@ -97,10 +101,11 @@ Run an ad-hoc setup. Ask the user, in order:
    schemas repo, use the current path.
 3. **Other consumer repos** (optional) — absolute paths to the GraphQL server and any client
    repos (web portal, mobile app, etc.). Can be left empty and added later.
-4. **Registry login command** (optional) — the shell command that refreshes the auth token for
-   the package registry that hosts the generated packages (e.g., `aws codeartifact login --tool
-   npm --domain ... --repository ...`, or a project-specific wrapper). Leave empty if there is
-   no token to refresh.
+4. **Registry login command(s)** (optional) — the shell command(s) that refresh the auth token
+   for the package registry that hosts the generated packages (e.g., `aws codeartifact login
+   --tool npm --domain ... --repository ...`, or a project-specific wrapper). May be a single
+   string, or a **list** when a project needs several (all are run, in order). Leave empty if
+   there is no token to refresh.
 
 Then write `~/.claude/api-projects.json`, creating the file or merging into the existing one.
 **Always show the user the final config and confirm before writing.**
@@ -110,7 +115,8 @@ Then write `~/.claude/api-projects.json`, creating the file or merging into the 
 You now have:
 
 - `<schemas-repo>` — absolute path to the GraphQL schemas repository
-- `<registry-login-command>` — the registry refresh command, or empty
+- `<registry-login-command>` — the registry refresh command(s): a string, a **list** (run all
+  in order), or empty
 
 The rest of this skill assumes both are known. Use `<schemas-repo>` for all `cd` commands into
 the schemas repo. The server and client repo paths are looked up from the same project's
@@ -277,14 +283,20 @@ via the registry (e.g., `npm view <schema-package> versions --json`).
 
 ### Refresh the registry token (if applicable)
 
-If the project's config includes a `registry_login_command`, run it before installing. Tokens
-for private registries often expire:
+If the project's config includes a `registry_login_command`, run it before installing — tokens
+for private registries often expire.
+
+`registry_login_command` may be a single string or a **list**. Run **every** command in the
+list, in order:
 
 ```bash
-<registry-login-command>
+<registry-login-command-1>
+<registry-login-command-2>
 ```
 
-Skip this step if no `registry_login_command` is configured.
+**Override:** if the current repository's `CLAUDE.md` documents a specific setup/registry command
+(e.g. in its Commands section), run **only that one** instead of the list — the repo's own docs
+win. Skip this step entirely if neither the config nor the repo documents a command.
 
 ### Update the dependency versions
 
@@ -338,7 +350,7 @@ type-check + lint + test + build).
 
 If the build fails with a dependency resolution error, verify:
 1. The schema CI workflow completed successfully
-2. The registry token is fresh (re-run `<registry-login-command>` if applicable)
+2. The registry token is fresh (re-run the registry login command(s) if applicable)
 3. The version in `package.json` matches the exact SNAPSHOT string from the registry
 
 ---
