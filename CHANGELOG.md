@@ -1,5 +1,67 @@
 # mattpocock-skills
 
+## 1.2.0
+
+### Minor Changes
+
+- [`ce337c6`](https://github.com/mattpocock/skills/commit/ce337c6e2beee04d452a36043d4eb021df8f4af0) Thanks [@jerdno](https://github.com/jerdno)! - Add Codex metadata alongside each skill's Claude Code frontmatter so the set works in both harnesses without generated copies.
+
+  - Add an `agents/openai.yaml` beside every `SKILL.md` with Codex UI metadata (`interface.display_name`, `interface.short_description`).
+  - Mark every user-invoked skill with `policy.allow_implicit_invocation: false`, the Codex analog of `disable-model-invocation: true`, so Codex excludes it from implicit invocation while explicit `$skill` invocation still works.
+  - Document the dual-harness invocation model in `.agents/invocation.md`, `CLAUDE.md`, and the promoted-bucket READMEs.
+  - Add `AGENTS.md` as a symlink to `CLAUDE.md` so Codex reads the same repo instructions.
+
+- [`ce337c6`](https://github.com/mattpocock/skills/commit/ce337c6e2beee04d452a36043d4eb021df8f4af0) Thanks [@jerdno](https://github.com/jerdno)! - Reword how the **`prototype`** skill handles its artifacts around a single idea: **the prototype is a primary source**. Rather than being deleted once it's answered its question, the prototype is captured as runnable evidence on a throwaway branch (`prototype/<name>`) out of main, with a context pointer to it left on the implementation issue — so the main branch keeps only the validated decision while the exploration stays findable. The answer (verdict + question) is still captured durably in an issue/ADR/commit.
+
+- [`ce337c6`](https://github.com/mattpocock/skills/commit/ce337c6e2beee04d452a36043d4eb021df8f4af0) Thanks [@jerdno](https://github.com/jerdno)! - Ship the skill set as a native **Claude Code plugin**. The repo is now its own single-plugin marketplace, so you can subscribe to the promoted skills as a managed, read-only bundle instead of copying editable files:
+
+  ```
+  /plugin marketplace add mattpocock/skills
+  /plugin install mattpocock-skills@mattpocock
+  ```
+
+  `.claude-plugin/plugin.json` gains full marketplace metadata (version, description, author, license, keywords) and a sibling `.claude-plugin/marketplace.json` lists the plugin. `skills.sh` remains the universal installer (and the path for Codex and other harnesses today); a native Codex plugin is deferred — see `.agents/adr/0002-ship-as-a-claude-code-plugin.md` for why.
+
+- [`ce337c6`](https://github.com/mattpocock/skills/commit/ce337c6e2beee04d452a36043d4eb021df8f4af0) Thanks [@jerdno](https://github.com/jerdno)! - Wayfinder now burns research tickets down with subagents instead of leaving them parked for a separately-launched session.
+
+  Research stays a real ticket type — it's a genuine shared blocker that downstream decisions hang on, and that dependency is exactly what the frontier's blocking edges exist to render. What changes is how it's resolved: because research is AFK, charting doesn't stop and read it. After creating the tickets, the charting session fires a `/research` subagent for each research ticket to burn it down in parallel, capturing the findings on a throwaway `research/<name>` branch with a context pointer. Research tickets are the one exception to _one ticket per session_.
+
+- [`ce337c6`](https://github.com/mattpocock/skills/commit/ce337c6e2beee04d452a36043d4eb021df8f4af0) Thanks [@jerdno](https://github.com/jerdno)! - Add a YAGNI scoping filter to the **`improve-codebase-architecture`** skill's Explore step. Instead of scanning the whole repo evenly, it now scopes to where change is actually landing: if you name a direction it takes it, otherwise it reads the last ~20 commit messages to bias exploration toward actively-developed paths. A deepening opportunity in code nobody touches is a refactor you'll never cash in — the leverage only pays off where you keep editing — so the report stops tidying dormant corners of the repo.
+
+### Patch Changes
+
+- [`ce337c6`](https://github.com/mattpocock/skills/commit/ce337c6e2beee04d452a36043d4eb021df8f4af0) Thanks [@jerdno](https://github.com/jerdno)! - Make `/ask-matt` clued-up about `/wayfinder` — the heaviest, most cognitively demanding flow.
+
+  The router now sharpens the two routing mistakes people most often make with wayfinder:
+
+  - **Over-reaching for it.** It's slower and denser than a single grill, so it's flagged as the heaviest flow and reserved for the idea that genuinely won't fit one session — a well-scoped feature belongs on `/grill-with-docs`, not here.
+  - **Losing the way at the handoff.** When the map clears, wayfinder hands off, it doesn't build: merge onto the main flow at `/to-spec` (which collapses the map's linked decisions into a buildable plan) rather than looping the map straight into `/implement`. Straight-to-`/implement` is only for efforts that turned out genuinely small.
+
+- [`ce337c6`](https://github.com/mattpocock/skills/commit/ce337c6e2beee04d452a36043d4eb021df8f4af0) Thanks [@jerdno](https://github.com/jerdno)! - Make `/setup-matt-pocock-skills` friendlier and align the local-markdown tracker with the current spec.
+
+  - **Triage labels** are now asked about only when the `triage` skill is installed, and then as a single recommended-yes question ("keep the default triage labels?") instead of an override interrogation. When `triage` isn't installed, the section — and `docs/agents/triage-labels.md` — are skipped.
+  - **External PRs as a request surface** is no longer a setup question. The GitHub/GitLab templates still carry the flag, defaulted off; a user can flip it in `docs/agents/issue-tracker.md` later.
+  - **Domain docs** default to single-context without asking; multi-context is only offered when the repo shows monorepo signals.
+  - **Local-markdown tickets** are now one file per ticket under `.scratch/<feature>/issues/<NN>-<slug>.md` — never a single combined `tickets.md`. `/to-tickets` and the local issue-tracker template now agree, and the spec file is `spec.md` (not `PRD.md`) to match `/to-spec`.
+
+  Docs pages for `setup-matt-pocock-skills` and `to-tickets` re-synced.
+
+- [`ce337c6`](https://github.com/mattpocock/skills/commit/ce337c6e2beee04d452a36043d4eb021df8f4af0) Thanks [@jerdno](https://github.com/jerdno)! - Reword **`grilling`** for general use. Its description and body no longer scope the interview to a software plan: "this plan" → "this", "enact the plan" → "act on it", and "exploring the codebase" → "exploring the environment". The technique is unchanged; it now reads as a stress-test of any plan, decision, or idea.
+
+- [`97c918f`](https://github.com/mattpocock/skills/commit/97c918f8ec7bd4f1ef41070bc7d48937f7e7d06f) Thanks [@jerdno](https://github.com/jerdno)! - setup-matt-pocock-skills docs: list Jira as a supported issue tracker.
+
+  The skill has supported Jira (via `acli`) for a while, but the docs page still enumerated only GitHub, GitLab, local-markdown, and "other". Added Jira and `acli` to the tracker list, and noted that — unlike `gh`/`glab` — `acli` can't infer the project from `git remote`, so setup asks for the project key and site.
+
+- [`0772413`](https://github.com/mattpocock/skills/commit/0772413a7cac86565ed316865a4af56d51d8d13e) Thanks [@jerdno](https://github.com/jerdno)! - Jira issue-tracker template: lean ticket reads, native ADF authoring, and a Wayfinding operations section.
+
+  - **Lean reads.** "Read an issue" / "fetch the relevant ticket" no longer steer agents to `--fields '*all' --json` (~200 lines of avatar URLs and null custom fields on every read). The default is now the plain-text `view`; structured reads use an explicit `--fields "..." --json | jq` projection (a bare `--json` returns neither `labels` nor `parent`), with a `jq`-free fallback; `*all` remains only as a cautioned escape hatch.
+  - **Author ADF, not markdown.** Jira stores descriptions/comments as ADF, so pasted markdown renders literally. The template now tells agents to author ADF — always for descriptions, and for comments when formatted — with a minimal ADF primer.
+  - **Wayfinding operations.** Adds the `/wayfinder` mapping the GitHub/GitLab/local templates already carry: map = `Task` labelled `wayfinder:map` (ADF body), tickets = subtasks labelled `wayfinder:<type>`, native `is blocked by` blocking, the frontier query (per-item `view --fields issuelinks`, since `search` omits links), claim/resolve, and the parallel-safe map-body edit.
+
+- [`ce337c6`](https://github.com/mattpocock/skills/commit/ce337c6e2beee04d452a36043d4eb021df8f4af0) Thanks [@jerdno](https://github.com/jerdno)! - Name the `/wayfinder` unit a **decision ticket**.
+
+  People kept reading a wayfinder ticket as an ordinary _implementation_ ticket — a slice of a build to execute — when wayfinder uses them as **decision tickets**: questions whose resolution is a decision. The skill description and its opening line now introduce "decision ticket" (and say what makes it one), and the `ask-matt` / engineering README wayfinder blurbs and the docs page match — while "ticket" stays the everyday word once the term is established. `CONTEXT.md` records **Decision ticket** as a domain term so the "avoid: ticket" guidance no longer contradicts wayfinder's deliberate use of the word.
+
 ## 1.1.0
 
 ### Minor Changes
