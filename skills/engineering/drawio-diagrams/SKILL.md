@@ -1,11 +1,13 @@
 ---
-name: c4-architecture-diagrams
-description: Use when creating C4 architecture diagrams (context, container, or component views) in draw.io. Encodes hard-won layout lessons — proper C4 stencils so actors aren't indistinguishable from systems, edge routing that keeps labels readable, and multiple views organised as tabs in one file. Triggers on "C4 diagram", "context view", "container view", "component view", or any diagram following Simon Brown's C4 model.
+name: drawio-diagrams
+description: Use when creating, editing, or cleaning up any draw.io diagram (.drawio file) — including C4 views (context, container, component) — or when an existing diagram renders with overlapping labels, edges crossing boxes, or unreadable text. Covers layout craft and verification: edge routing that keeps labels readable, multi-page files, a geometric overlap checker, and a render-and-inspect gate before claiming done. Layout and verification only — not XML basics or CLI export mechanics.
 ---
 
-# C4 Architecture Diagrams
+# Draw.io Diagrams
 
-A focused companion to the generic `drawio` skill, for one job: producing a publication-ready C4 diagram on the first render instead of after three rounds of iteration. The drawio skill tells you **how** to write `.drawio` XML; this skill tells you **how to lay one out so the reader can actually read it**.
+One job: a publication-ready diagram on the first render instead of after three rounds of iteration. This skill covers **how to lay out a `.drawio` file so the reader can actually read it, and how to prove that before claiming done**. It does not cover XML authoring basics or export mechanics — for draw.io XML reference beyond the patterns here (styles, shapes, containers, edge syntax), fetch https://raw.githubusercontent.com/jgraph/drawio-mcp/main/shared/xml-reference.md.
+
+**If the diagram is a C4 view (context, container, or component — Simon Brown's model), read [C4.md](C4.md) in this skill folder before planning entities.** It carries the stencil rules, entity templates, palette default, and the C4 additions to the verification gate.
 
 ## The Iron Rule
 
@@ -30,92 +32,31 @@ CLI export (`drawio -x` → PNG/SVG/PDF) runs the plain orthogonal router: it pi
 
 ## Multiple views → ONE .drawio file with tabs (not separate files)
 
-When the user wants more than one C4 view (context + container, or container + component, or all three), put them as separate **pages** inside a single `.drawio` file. draw.io renders pages as tabs along the bottom. The XML pattern:
+When the user wants more than one view of the same subject (an overview plus per-flow detail, or several zoom levels), put them as separate **pages** inside a single `.drawio` file. draw.io renders pages as tabs along the bottom. The XML pattern:
 
 ```xml
 <mxfile>
-  <diagram name="1. Context" id="ctx">
+  <diagram name="1. Overview" id="p1">
     <mxGraphModel ...><root>...</root></mxGraphModel>
   </diagram>
-  <diagram name="2. Container" id="cnt">
+  <diagram name="2. Payment flow" id="p2">
     <mxGraphModel ...><root>...</root></mxGraphModel>
   </diagram>
-  <diagram name="3. Component (X service)" id="cmp-x">
+  <diagram name="3. Deployment" id="p3">
     <mxGraphModel ...><root>...</root></mxGraphModel>
   </diagram>
 </mxfile>
 ```
 
-One file means: one place to open, one place to version, one diff when something changes, edges between views are conceptually grouped. Don't create `context.drawio`, `container.drawio`, `component.drawio` as separate files — that's three commits, three PRs, three places to forget.
+One file means: one place to open, one place to version, one diff when something changes, views are conceptually grouped. Don't create `overview.drawio`, `payment-flow.drawio`, `deployment.drawio` as separate files — that's three commits, three PRs, three places to forget.
 
 Page-index for CLI export is **1-based**: `-p 1` is the first page.
 
-## Use real C4 stencils where they exist (the actor-vs-system problem)
+## Colour palette: pick one, apply it consistently
 
-The cardinal sin of a C4 diagram: every entity is a styled rectangle, so a reader can't tell at a glance which boxes are humans and which are software. The `[Person]` / `[Software System]` stereotype label helps, but it's *text* — the reader has to read every box. A diagram should be parseable by *shape* first.
+A diagram needs *some* colour palette to distinguish entity categories (internal vs external, in-focus vs out-of-scope, layer vs layer). The specific hex codes don't matter — what matters is **consistency within one diagram set** and that the four–five categories are visually distinct.
 
-**draw.io's actual C4 stencil library is narrow.** Only the person silhouette is a dedicated shape:
-
-```
-shape=mxgraph.c4.person2   # The person-with-stick-figure shape — use this for every Person
-```
-
-For Software System / Container / Component / External System — there's no specialised stencil, just styled rectangles (and cylinders for stores). That's fine, because rectangles are easy to distinguish from a silhouette. The rule:
-
-- **Person (any kind — internal, external, addon) → `mxgraph.c4.person2`. Always.**
-- **Software System / Container / Component / Database / External System → rounded rectangle (or `cylinder3` for stores), with the entity type written in the label as `[Type]`.**
-
-Wrap each entity in an `<object>` element carrying C4 metadata (`c4Name`, `c4Type`, `c4Description`), **and put `metaEdit=1` in the shape's style.** The two work together: the `<object>` makes the entity readable by downstream C4-as-code tooling, and `metaEdit=1` makes double-click open the metadata (Edit Data) dialog. The `<object>` wrapper alone is *not* enough — without `metaEdit=1`, double-click opens draw.io's raw HTML label editor and the description can't be edited cleanly. Minimal but worth it.
-
-### Person template (always wrap in `<object>`)
-
-```xml
-<object placeholders="1"
-        c4Name="Persona Name"
-        c4Type="Person"
-        c4Description="One-sentence role description."
-        label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;%c4Description%&lt;/font&gt;&lt;/div&gt;"
-        id="ENTITY_ID">
-  <mxCell parent="1" vertex="1"
-          style="html=1;fontSize=11;dashed=0;whiteSpace=wrap;fontColor=#ffffff;shape=mxgraph.c4.person2;align=center;metaEdit=1;points=[[0.5,0,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0]];resizable=0;fillColor=PALETTE_FILL;strokeColor=PALETTE_STROKE;">
-    <mxGeometry x="X" y="Y" width="200" height="180" as="geometry"/>
-  </mxCell>
-</object>
-```
-
-Notes:
-- `points=[…]` is the connection-anchor array sized for the person silhouette. Copy verbatim or edges will attach at weird offsets.
-- `resizable=0` and `width=200 height=180` — do not resize the person shape. If you need more text, use the `c4Description` attribute; the shape stays the same.
-- `metaEdit=1` enables the C4 metadata dialog on double-click.
-
-### System / Container template (rectangle in `<object>`)
-
-```xml
-<object placeholders="1"
-        c4Name="System Name"
-        c4Type="Software System"
-        c4Description="One- or two-sentence description."
-        label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;%c4Description%&lt;/font&gt;&lt;/div&gt;"
-        id="ENTITY_ID">
-  <mxCell parent="1" vertex="1"
-          style="rounded=1;whiteSpace=wrap;html=1;fontColor=#FFFFFF;fontSize=12;align=center;verticalAlign=middle;fillColor=PALETTE_FILL;strokeColor=PALETTE_STROKE;metaEdit=1;">
-    <mxGeometry x="X" y="Y" width="W" height="H" as="geometry"/>
-  </mxCell>
-</object>
-```
-
-Notes:
-- `metaEdit=1` is what makes double-click open the C4 metadata (Edit Data) dialog — Name / Type / Description — instead of draw.io's raw HTML label editor. It is **required on every entity** (systems, containers, components, external systems, stores), not just persons. The `<object>` wrapper alone is not enough.
-
-For a database / object store, swap the style for `shape=cylinder3;...;size=18;...` (keep `metaEdit=1`).
-
-For an external boundary (system, account, environment), use a rectangle with `fillColor=none;strokeColor=...;dashed=1;dashPattern=12 6;` and place it behind the contained shapes (earlier in XML order).
-
-### Colour palette: pick one, apply it consistently
-
-A C4 diagram needs *some* colour palette to distinguish entity types (internal vs external, in-focus vs out-of-scope, addon vs core). The specific hex codes don't matter — what matters is **consistency within one diagram set** and that the four–five categories are visually distinct.
-
-The canonical C4-PlantUML palette is a fine default; the human may prefer slightly different shades. **Ask once at the start of a project** (or use whatever the user's existing diagrams use) and then commit. Don't pick colours per-shape on the fly — that's how a diagram ends up looking like a parrot.
+**Ask once at the start of a project** (or use whatever the user's existing diagrams use) and then commit. Don't pick colours per-shape on the fly — that's how a diagram ends up looking like a parrot.
 
 ## The layout problems that keep biting (and how to dodge them)
 
@@ -194,7 +135,7 @@ Fix: text widths must accommodate the **longest possible string at the chosen fo
 
 ### Problem 10 — Many edges meet one hub, labels pile up at the midpoints
 
-Symptom: a central node has 5–6 edges; their default midpoint labels cluster on top of each other near the hub (common in context diagrams and fee maps where everything points at one system).
+Symptom: a central node has 5–6 edges; their default midpoint labels cluster on top of each other near the hub (common in overview diagrams where everything points at one system).
 
 Root cause: every edge's label defaults to the geometric midpoint, and the midpoints bunch where the edges converge.
 
@@ -232,7 +173,6 @@ Fixes:
    ```
    Must print `CLEAN` for every page. Fix every `ISSUE` (edge routes through a box) — first by re-laying-out to remove the crossing, then by pinning if it's unavoidable; resolve every `WARN` (auto-routed edge that *may* cross) the same way and re-run. An `ARROW` line flags a likely sideways arrowhead (Problem 11) — fix it or confirm it in the PNG. This is what catches the grazing clips a downscaled PNG hides — don't skip it on the assumption the eyeball covered it.
 4. **Eyeball each PNG** for what geometry can't check:
-   - [ ] Persons (silhouette) are visually distinguishable from systems (rectangles) at a glance
    - [ ] Every relationship's direction matches the verb tense ("X sends to Y" = arrow from X to Y)
    - [ ] Lane labels / boundary titles are visible and not truncated
    - [ ] Page margins look right — no shapes clipped at the edges
@@ -241,29 +181,10 @@ Fixes:
 
 If any check fails, fix and re-render. The render-fix loop is ~30 seconds — much cheaper than shipping a diagram the user has to point at and call out problems in.
 
-## Common pitfalls — compact reference
-
-| Pitfall | Fix |
-|---|---|
-| Used a plain rectangle for a Person | Switch to `mxgraph.c4.person2`, wrap in `<object>` |
-| Tried `mxgraph.c4.softwareSystem` / `mxgraph.c4.container` | These don't exist. Use rounded rectangles with `[Type]` stereotype label |
-| Edge label unreadable on a coloured line | Set `labelBackgroundColor=#FFFFFF` |
-| Two parallel arrows have overlapping labels | Stagger exit points (`exitY=0.25` vs `0.75`) and route through different channels |
-| Vertical edge through a downstream icon | Move the icon out of the hub's x-column |
-| Resized `person2` and edges attach weirdly | Don't resize person2; keep `resizable=0`, width 200, height 180 |
-| Skipped `<object>` wrapper | Downstream C4 tools can't read the entity, and double-click has no metadata to show. Wrap it |
-| Entity wrapped in `<object>` but missing `metaEdit=1` | Double-click opens the raw HTML label editor instead of the Name/Type/Description form, so the description can't be edited cleanly. Add `metaEdit=1` to the style of **every** entity — rectangles and stores, not just persons |
-| CLI exported the wrong page | Page index is 1-based (`-p 1` for the first page) |
-| Lane label truncated | Increase the width of the text mxCell |
-| Edge waypoint references old shape position | Search for the old coordinates and update or delete the waypoint |
-| Eyeballed the PNG, shipped a grazing clip | The eye misses fine clips on a downscaled PNG — gate on `check-overlaps.py`, which prints CLEAN or names the edge + box |
-| Auto-routed edge sailed through a box in the static export | CLI export does no obstacle avoidance — re-lay-out to clear the crossing, or pin that one edge with exit/entry + waypoints, then confirm with `check-overlaps.py` |
-| Hub's edge labels piled up at their midpoints | Fan exit points + move labels off-midpoint with `mxGeometry x/y` (Problem 10) |
-| Arrowhead sits sideways against the target's border | Fixed entry fights a waypointed approach — drop `entryX/entryY` (perimeter auto-attach) or align the last waypoint with the entry (Problem 11) |
-
 ## What's NOT in this skill (by design)
 
+- **XML authoring basics and CLI export mechanics** (platform install paths, embed flags, format table) — the XML reference linked at the top covers deep syntax; export tooling belongs to your environment.
 - **Specific colour hex codes** — pick a palette per project; apply consistently within the project.
 - **Specific page sizes** — depends on entity count and aspect ratio. Start with whatever feels right and resize if shapes clip or labels run off.
-- **AWS / Azure / GCP icon sets** — those belong in a separate skill (or in the generic `drawio` skill). This skill is about the C4 *notation*, not about cloud iconography.
+- **AWS / Azure / GCP icon sets** — the layout rules here apply regardless of icon set; the sets themselves aren't covered.
 - **Project-specific entity templates** — every project's entities are different. The patterns above apply universally; the content does not.
