@@ -18,7 +18,12 @@ What it does
 Reconstructs each edge's route from its exit/entry connection points + explicit
 waypoints, then reports any straight segment that passes through an unrelated
 box. Handles multi-page files (<diagram> tabs) and <object>/<UserObject>-wrapped
-C4 entities (id on the wrapper, geometry/style on the inner <mxCell>).
+C4 entities (id on the wrapper, geometry/style on the inner <mxCell>). Children
+of containers store geometry relative to the parent; absolute positions are
+resolved by walking the parent chain (waypoints of container-parented edges too).
+A page whose payload is compressed (base64 text, no <mxGraphModel>) is an ERROR,
+not a pass — decompress first (drawio -x -f xml, or untick File > Properties >
+Compressed in the app).
 
   - Boxes with fillColor=none (C4 boundaries/containers) are NOT obstacles —
     edges are allowed to cross a boundary. Pure text cells and tiny marks
@@ -28,7 +33,7 @@ C4 entities (id on the wrapper, geometry/style on the inner <mxCell>).
   - AUTO-ROUTED edges (a non-axis-aligned bend the router resolves) get a
     conservative WARN listing boxes that *a* plausible route crosses — pin the
     edge with waypoints to turn the WARN into a definite yes/no.
-  - ARROWHEAD orientation (Problem 11): a waypointed edge whose last waypoint isn't
+  - ARROWHEAD orientation (Problem 9): a waypointed edge whose last waypoint isn't
     aligned with a fixed entry point gets a conservative ARROW flag — its arrowhead
     may graze ALONG the target's border instead of pointing in. Drop the fixed
     entryX/entryY (perimeter auto-attach) or align the waypoint. Heuristic on raw
@@ -57,7 +62,12 @@ def style_dict(s):
 
 
 def collect(diagram):
-    """Return (vertices, edges) for one page."""
+    """Return (vertices, edges) for one page, coordinates resolved to absolute.
+
+    A cell parented to a container stores geometry RELATIVE to that container;
+    absolute positions come from summing the parent chain's origins (a layer has
+    no geometry and contributes nothing). Applies to edge waypoints as well.
+    Vertices with relative geometry (e.g. edge labels) are skipped."""
     if diagram.tag == "mxGraphModel":
         model = diagram
     else:
@@ -66,6 +76,7 @@ def collect(diagram):
     verts, edges = {}, []
     if root is None:
         return verts, edges
+    raw, raw_edges = {}, []
     for child in root:
         if child.tag in ("object", "UserObject"):
             cid, cell = child.get("id"), child.find("mxCell")
@@ -77,17 +88,34 @@ def collect(diagram):
             continue
         st = style_dict(cell.get("style"))
         geo = cell.find("mxGeometry")
-        if cell.get("vertex") == "1" and geo is not None and geo.get("width"):
-            verts[cid] = dict(x=float(geo.get("x", 0)), y=float(geo.get("y", 0)),
-                              w=float(geo.get("width")), h=float(geo.get("height")), style=st)
+        parent = cell.get("parent")
+        if (cell.get("vertex") == "1" and geo is not None and geo.get("width")
+                and geo.get("relative") != "1"):
+            raw[cid] = dict(parent=parent, x=float(geo.get("x", 0)), y=float(geo.get("y", 0)),
+                            w=float(geo.get("width")), h=float(geo.get("height")), style=st)
         if cell.get("edge") == "1":
             pts = []
             if geo is not None:
                 arr = geo.find("Array")
                 if arr is not None:
                     pts = [(float(p.get("x")), float(p.get("y"))) for p in arr.findall("mxPoint")]
-            edges.append(dict(id=cid or "?", src=cell.get("source"), tgt=cell.get("target"),
-                              style=st, pts=pts))
+            raw_edges.append(dict(id=cid or "?", src=cell.get("source"), tgt=cell.get("target"),
+                                  style=st, pts=pts, parent=parent))
+
+    def offset(pid, seen=()):
+        """Absolute origin contributed by parent chain above cell id `pid`."""
+        if pid not in raw or pid in seen:
+            return 0.0, 0.0
+        ox, oy = offset(raw[pid]["parent"], seen + (pid,))
+        return ox + raw[pid]["x"], oy + raw[pid]["y"]
+
+    for cid, r in raw.items():
+        ox, oy = offset(r["parent"])
+        verts[cid] = dict(x=r["x"] + ox, y=r["y"] + oy, w=r["w"], h=r["h"], style=r["style"])
+    for e in raw_edges:
+        ox, oy = offset(e.pop("parent"))
+        e["pts"] = [(px + ox, py + oy) for px, py in e["pts"]]
+        edges.append(e)
     return verts, edges
 
 
@@ -179,7 +207,7 @@ def entry_side(st):
 def check_arrows(verts, edges):
     """Flag edges where an explicit last waypoint forces the final segment PARALLEL
     to a fixed entry edge — the arrowhead then grazes ALONG the border instead of
-    pointing into the box (Problem 11). Only waypointed edges are checked: a
+    pointing into the box (Problem 9). Only waypointed edges are checked: a
     no-waypoint edge auto-attaches perpendicular at the perimeter (verified). With a
     waypoint, the final segment is perpendicular only if that waypoint is aligned
     with the entry along the edge — same x for a top/bottom entry, same y for a
@@ -214,9 +242,18 @@ def main(paths):
         name = path.split("/")[-1]
         clean = True
         for d in pages:
-            verts, edges = collect(d)
             page = d.get("name", "")
             tag = f"{name} [{page}]" if page else name
+            if (d.tag == "diagram" and d.find(".//mxGraphModel") is None
+                    and (d.text or "").strip()):
+                clean = False
+                failed = True
+                print(f"ERROR  {tag}: page payload is compressed (base64, no <mxGraphModel>)"
+                      f" — nothing was checked. Decompress first: drawio -x -f xml -o"
+                      f" uncompressed.drawio {name} (or untick File > Properties >"
+                      f" Compressed in the app), then re-run.")
+                continue
+            verts, edges = collect(d)
             for eid, definite, potential in check_page(verts, edges):
                 clean = False
                 if definite:
@@ -228,7 +265,7 @@ def main(paths):
             for eid, side in check_arrows(verts, edges):
                 clean = False
                 print(f"ARROW  {tag}: edge '{eid}' may hit the {side} edge sideways "
-                      f"(fixed entry vs approach — see Problem 11; confirm in PNG)")
+                      f"(fixed entry vs approach — see Problem 9; confirm in PNG)")
         if clean:
             print(f"CLEAN  {name}")
     return 1 if failed else 0
