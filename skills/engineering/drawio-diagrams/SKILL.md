@@ -1,6 +1,6 @@
 ---
 name: drawio-diagrams
-description: Use when creating, editing, or cleaning up any draw.io diagram (.drawio file) — including C4 views (context, container, component) — or when an existing diagram renders with overlapping labels, edges crossing boxes, or unreadable text. Covers layout craft and verification: edge routing that keeps labels readable, multi-page files, a geometric overlap checker, and a render-and-inspect gate before claiming done. Layout and verification only — not XML basics or CLI export mechanics.
+description: Use when creating, editing, or cleaning up any draw.io diagram (.drawio file) — including C4 views (context, container, component) and AWS architecture diagrams — or when an existing diagram renders with overlapping labels, edges crossing boxes, or unreadable text. Covers layout craft and verification: edge routing that keeps labels readable, multi-page files, a geometric overlap checker, AWS icon lookup (official aws4 stencil names), and a render-and-inspect gate before claiming done. Layout, verification, and icon lookup — not XML basics or CLI export mechanics.
 ---
 
 # Draw.io Diagrams
@@ -8,6 +8,8 @@ description: Use when creating, editing, or cleaning up any draw.io diagram (.dr
 One job: a publication-ready diagram on the first render instead of after three rounds of iteration. This skill covers **how to lay out a `.drawio` file so the reader can actually read it, and how to prove that before claiming done**. It does not cover XML authoring basics or export mechanics — for draw.io XML reference beyond the patterns here (styles, shapes, containers, edge syntax), fetch https://raw.githubusercontent.com/jgraph/drawio-mcp/main/shared/xml-reference.md.
 
 **If the diagram is a C4 view (context, container, or component — Simon Brown's model), read [C4.md](C4.md) in this skill folder before planning entities.** It carries the stencil rules, entity templates, palette default, and the C4 additions to the verification gate.
+
+**If the diagram is an AWS architecture view**, use the official `mxgraph.aws4` stencils: look up a service's shape style with `python3 scripts/find-aws-icon.py <service>` (catalogue and naming rules in [references/aws-icons.md](references/aws-icons.md)).
 
 ## The Iron Rule
 
@@ -20,7 +22,7 @@ Most iteration loops come from skipping one of these. Layout problems are visibl
 CLI export (`drawio -x` → PNG/SVG/PDF) runs the plain orthogonal router: it picks endpoints and right-angle paths, but it does **not** route around boxes in the way. The raw route in the XML is what renders — so an auto-routed edge whose straight path crosses an unrelated box is drawn **straight through it**, and a midpoint label lands on whatever it overlaps. (Verified: a no-waypoint edge between two boxes with a third box dead between them renders as a straight line bisecting the middle box.) Some interactive/embedded viewers apply an extra layout pass that nudges edges off boxes; **the CLI export does not, and there's no flag to switch it on.** Three rules follow, in order:
 
 - **Avoid the crossing by layout first.** The cheapest fix is to place boxes so no edge needs to cross an unrelated one — reserve corridors, keep a hub's column clear (Problems 1, 2, 5). An edge that crosses nothing needs no pinning and survives later edits.
-- **Pin only the edges that genuinely can't avoid a box.** For those, set `exitX/exitY` + `entryX/entryY` and add waypoints to route down a clear corridor (Problems 1–5). Don't pin edges that already render clean — hard-coded routes go stale the moment you move a shape (Problem 7), so pinning everything just buys future breakage.
+- **Pin only the edges that genuinely can't avoid a box.** For those, set `exitX/exitY` + `entryX/entryY` and add waypoints to route down a clear corridor (Problems 1–5). Don't pin edges that already render clean — hard-coded routes go stale the moment you move a shape (Problem 6), so pinning everything just buys future breakage.
 - **Don't trust the eyeball alone — it misses fine clips.** A line grazing a tag corner is invisible at fit-to-page zoom and obvious to the reader at 100%. Gate on geometry with the bundled checker (in this skill's `scripts/` folder):
 
   ```bash
@@ -52,11 +54,13 @@ One file means: one place to open, one place to version, one diff when something
 
 Page-index for CLI export is **1-based**: `-p 1` is the first page.
 
-## Colour palette: pick one, apply it consistently
+## Colour palette and line semantics: pick once, apply consistently
 
 A diagram needs *some* colour palette to distinguish entity categories (internal vs external, in-focus vs out-of-scope, layer vs layer). The specific hex codes don't matter — what matters is **consistency within one diagram set** and that the four–five categories are visually distinct.
 
 **Ask once at the start of a project** (or use whatever the user's existing diagrams use) and then commit. Don't pick colours per-shape on the fly — that's how a diagram ends up looking like a parrot.
+
+The same rule covers **line styles**. When edges carry different kinds of flow (request/query vs async ingestion vs control), assign each kind one style — e.g. solid = request/query, dashed = async/data flow, dotted = control — and hold it across the diagram set. More than one line style in play → add a small legend.
 
 ## The layout problems that keep biting (and how to dodge them)
 
@@ -71,7 +75,7 @@ Root cause: orthogonal edge routing chose a path through C because it's the shor
 Fixes (in order of preference):
 1. **Re-layout** so A and B don't need a path that passes through C. Move C to a different column or row.
 2. **Add explicit waypoints** to route the edge around C. A two-corner path (`<Array as="points"><mxPoint x="..." y="..."/><mxPoint x="..." y="..."/></Array>`) gives full control.
-3. **Always set `labelBackgroundColor=#FFFFFF`** on labelled edges — even with a clean path, you want labels readable when they cross other lines.
+3. **Always set `labelBackgroundColor` on labelled edges** — `#FFFFFF` on a white canvas, the canvas colour otherwise. Even with a clean path, you want labels readable when they cross other lines. No exceptions; it's a one-line style addition.
 
 ### Problem 2 — Vertical edge from the hub passes through an icon in the same column
 
@@ -107,33 +111,21 @@ Symptom: A long edge crosses the middle of the diagram where many other labels a
 
 Fix: route long edges via **canvas corridors** (top edge, bottom edge, dedicated lanes between rows of icons). Use waypoints to force the route up/down out of the busy band, across, then back in.
 
-### Problem 6 — `labelBackgroundColor` is missing
-
-Symptom: An edge label is rendered as transparent text. It crosses an edge line or sits in a busy area, and the text is unreadable.
-
-Fix: **every labelled edge gets `labelBackgroundColor=#FFFFFF`**. No exceptions. It's a one-line style addition. Default to white background; if the diagram has a coloured/dark background, use whatever colour the canvas is.
-
-### Problem 7 — Moved an icon, forgot to update its edges' waypoints
+### Problem 6 — Moved an icon, forgot to update its edges' waypoints
 
 Symptom: Icon was at `(800, 500)`, you moved it to `(600, 500)`, but an edge to it still has a hard-coded waypoint at `(800, 400)`. The edge now does a weird detour.
 
 Root cause: explicit waypoints are coordinates, not symbolic references. They don't follow the shape.
 
-Fix: when moving a shape, **search the XML for its old position values and update or delete waypoints** that reference them. Or, where possible, prefer auto-routed orthogonal paths (no waypoints) over manual waypoints — they re-route when the shape moves. *(Caveat: auto-routing re-flows on edit, but in CLI export it does no obstacle avoidance — an auto-routed path can render straight through a box. Fix that by layout where you can; pin with exit/entry + waypoints only if the crossing is unavoidable, and let `check-overlaps.py` confirm. See "Static export does no obstacle avoidance" above.)*
+Fix: when moving a shape, **search the XML for its old position values and update or delete waypoints** that reference them. Or, where possible, prefer auto-routed orthogonal paths (no waypoints) over manual waypoints — they re-route when the shape moves. *(Auto-routing still does no obstacle avoidance in static export — see "Static export does no obstacle avoidance" above.)*
 
-### Problem 8 — Copy-pasted edge, forgot to fix `source` / `target`
-
-Symptom: an edge labelled "X notifies Y" actually connects Z and Y, because you copied another edge's XML and changed the label but not the `source` attribute.
-
-Fix: **after copying any edge, re-read its `source=` and `target=` attributes and confirm they're correct.** This is a 10-second check that catches a class of bug that's invisible in the XML but obvious in the rendered PNG.
-
-### Problem 9 — Text container sized too tightly = truncated label
+### Problem 7 — Text container sized too tightly = truncated label
 
 Symptom: A lane label or boundary title renders truncated ("Data & sto" instead of "Data & storage"). The width on the text mxCell is too small.
 
 Fix: text widths must accommodate the **longest possible string at the chosen font size**. When in doubt, set the width generously (200–300 px for short titles) — empty space is free, truncation isn't.
 
-### Problem 10 — Many edges meet one hub, labels pile up at the midpoints
+### Problem 8 — Many edges meet one hub, labels pile up at the midpoints
 
 Symptom: a central node has 5–6 edges; their default midpoint labels cluster on top of each other near the hub (common in overview diagrams where everything points at one system).
 
@@ -148,7 +140,7 @@ Fixes:
    `x=-0.4` slides the label 40 % toward the source onto a clearer segment; `y=-12` lifts it 12 px off the line.
 3. **Keep on-edge labels short** — a step number or 2–3 words. Push figures / long detail into a small positioned tag box next to the edge, not into the edge label. (A short label is also far less likely to overlap anything in the first place.)
 
-### Problem 11 — Arrowhead runs *along* the target's edge instead of pointing into it
+### Problem 9 — Arrowhead runs *along* the target's edge instead of pointing into it
 
 Symptom: an edge reaches its target but the arrowhead sits sideways against the border (or floats near a corner), grazing the box rather than landing on it.
 
@@ -159,9 +151,15 @@ Fixes:
 2. **Align the last waypoint with the entry** — same `x` for a top/bottom entry, same `y` for a left/right entry — so the final segment is perpendicular. Or move the entry to the side the edge actually approaches from.
 3. `check-overlaps.py` flags this as a conservative `ARROW` warning. It can over-flag (an arrowhead that's actually fine but whose routing skims the border), so confirm flagged edges in the PNG.
 
+### Problem 10 — Element sits flush against its boundary frame
+
+Symptom: a title or icon inside a grouping frame touches or overflows the frame's border in the PNG — clipped by the stroke or the rounded corner.
+
+Fix: keep **at least 30 px** between a frame's border and everything inside it, and account for `rounded=1` corners and stroke width. The arithmetic is cheap: a frame at `y=20, height=400` spans 20–420, so children live in 50–390. Verify in the PNG — frames and children are placed independently, so nothing else catches this.
+
 ## Pre-flight verification (before saying "done")
 
-1. **XML well-formedness.** `xmllint --noout file.drawio` returns clean. Otherwise the file won't even open in draw.io.
+1. **XML well-formedness.** `xmllint --noout file.drawio` returns clean. Otherwise the file won't even open in draw.io. If a `<diagram>` holds base64 text instead of an `<mxGraphModel>` child, the file is **compressed** — decompress before editing or checking (`drawio -x -f xml -o uncompressed.drawio file.drawio`, or untick File → Properties → Compressed in the app); the checker errors on compressed pages rather than passing them.
 2. **Render each page to PNG.** Page index is 1-based:
    ```bash
    drawio -x -f png -b 20 -p 1 -o page1.png file.drawio
@@ -171,13 +169,14 @@ Fixes:
    ```bash
    python3 scripts/check-overlaps.py file.drawio
    ```
-   Must print `CLEAN` for every page. Fix every `ISSUE` (edge routes through a box) — first by re-laying-out to remove the crossing, then by pinning if it's unavoidable; resolve every `WARN` (auto-routed edge that *may* cross) the same way and re-run. An `ARROW` line flags a likely sideways arrowhead (Problem 11) — fix it or confirm it in the PNG. This is what catches the grazing clips a downscaled PNG hides — don't skip it on the assumption the eyeball covered it.
+   Must print `CLEAN` for every page: fix every `ISSUE` and `WARN` (re-layout first, pin only what can't avoid — see "Static export does no obstacle avoidance"), confirm every `ARROW` (Problem 9) in the PNG, and re-run. This catches the grazing clips a downscaled PNG hides — don't skip it on the assumption the eyeball covered it.
 4. **Eyeball each PNG** for what geometry can't check:
    - [ ] Every relationship's direction matches the verb tense ("X sends to Y" = arrow from X to Y)
    - [ ] Lane labels / boundary titles are visible and not truncated
+   - [ ] Nothing sits flush against a boundary frame's border (Problem 10)
    - [ ] Page margins look right — no shapes clipped at the edges
    - [ ] (edge-through-box and label-on-box overlaps belong to step 3, not the eye)
-5. **Sanity-check edges.** Quick pass through XML: for each edge, confirm `source=` and `target=` are the IDs you actually intend.
+5. **Sanity-check edges.** Quick pass through XML: for each edge — especially one copied from another edge — confirm `source=` and `target=` are the IDs you actually intend. A copied edge with a stale `source` is invisible in the XML and obvious in the PNG.
 
 If any check fails, fix and re-render. The render-fix loop is ~30 seconds — much cheaper than shipping a diagram the user has to point at and call out problems in.
 
@@ -186,5 +185,5 @@ If any check fails, fix and re-render. The render-fix loop is ~30 seconds — mu
 - **XML authoring basics and CLI export mechanics** (platform install paths, embed flags, format table) — the XML reference linked at the top covers deep syntax; export tooling belongs to your environment.
 - **Specific colour hex codes** — pick a palette per project; apply consistently within the project.
 - **Specific page sizes** — depends on entity count and aspect ratio. Start with whatever feels right and resize if shapes clip or labels run off.
-- **AWS / Azure / GCP icon sets** — the layout rules here apply regardless of icon set; the sets themselves aren't covered.
+- **Azure / GCP icon sets** — the layout rules apply regardless of icon set, but only AWS ships with a lookup here (`references/aws-icons.md` + `scripts/find-aws-icon.py`); other clouds' stencils aren't catalogued.
 - **Project-specific entity templates** — every project's entities are different. The patterns above apply universally; the content does not.
