@@ -30,7 +30,7 @@ CLI export (`drawio -x` → PNG/SVG/PDF) runs the plain orthogonal router: it pi
   python3 scripts/check-overlaps.py *.drawio            # whole folder
   ```
 
-  It reconstructs every edge's route from its exit/entry points + waypoints and reports any segment crossing an unrelated box, per page (boundaries with `fillColor=none` are correctly ignored). `CLEAN` per file, or it names the offending edge and box. Pinned (waypointed) edges get an exact verdict; auto-routed edges get a `WARN` — resolve it by re-laying-out to remove the crossing, or by pinning that one edge. This is the gate that catches the clips three rounds of eyeballing won't.
+  It reconstructs every edge's route from its exit/entry points + waypoints and reports any segment crossing an unrelated box, per page (boundaries with `fillColor=none` are correctly ignored). `CLEAN` per file, or it names the offending edge and box. Pinned (waypointed) orthogonal edges get an exact verdict; auto-routed ones get a `WARN` — resolve it by re-laying-out to remove the crossing, or by pinning that one edge. Straight edges (no `edgeStyle` — draw.io's default) are intersected exactly, diagonals included. It also estimates every edge label's box (position from the label geometry, size from text length × font size) and emits `LABEL` advisories for label-on-box and label-on-label pile-ups. This is the gate that catches the clips three rounds of eyeballing won't.
 
 ## Multiple views → ONE .drawio file with tabs (not separate files)
 
@@ -92,6 +92,8 @@ Symptom: Source S sends two edges to nearby targets P and Q (e.g., observability
 Root causes:
 - Both edges exit S at the same point (default = centre of side).
 - Both edges route through the same channel.
+
+The export makes this worse than garble: labels that overlap heavily are clipped, and exactly-coincident labels are silently dropped from the render (verified) — the text just disappears.
 
 Fix: **stagger.**
 - Different exit points on S: `exitY=0.25` for one, `exitY=0.75` for the other.
@@ -169,7 +171,7 @@ Fix: keep **at least 30 px** between a frame's border and everything inside it, 
    ```bash
    python3 scripts/check-overlaps.py file.drawio
    ```
-   Must print `CLEAN` for every page: fix every `ISSUE` and `WARN` (re-layout first, pin only what can't avoid — see "Static export does no obstacle avoidance"), confirm every `ARROW` (Problem 9) in the PNG, and re-run. This catches the grazing clips a downscaled PNG hides — don't skip it on the assumption the eyeball covered it.
+   Must print `CLEAN` for every page: fix every `ISSUE` and `WARN` (re-layout first, pin only what can't avoid — see "Static export does no obstacle avoidance"), confirm every `ARROW` (Problem 9) in the PNG, and act on every `LABEL` (an edge label estimated to sit on a box or another label — Problems 1/3/4/8; text metrics are estimates, so confirm in the PNG). Re-run until clean. This catches the grazing clips a downscaled PNG hides — don't skip it on the assumption the eyeball covered it.
 4. **Eyeball each PNG** for what geometry can't check:
    - [ ] Every relationship's direction matches the verb tense ("X sends to Y" = arrow from X to Y)
    - [ ] Lane labels / boundary titles are visible and not truncated
