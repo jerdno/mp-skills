@@ -27,7 +27,7 @@ Plan the entities, shapes, and rough layout **before** writing XML; render to PN
 
 ## The geometric gate
 
-The defining move. Because the CLI's router draws straight through obstacles, the skill refuses to accept "the PNG looks fine" as a verdict. `check-overlaps.py` reconstructs every edge's route from its exit/entry points and waypoints, then reports any segment that crosses an unrelated box — exact verdicts for pinned edges, conservative `WARN`s for auto-routed ones, `ARROW` flags for arrowheads that graze a border sideways. It resolves container-relative coordinates, and it refuses compressed files rather than passing them unchecked. `CLEAN` on every page is the exit condition; the eyeball is only trusted with what geometry cannot check (direction of arrows, truncated titles, margins).
+The defining move. Because the CLI's router draws straight through obstacles, the skill refuses to accept "the PNG looks fine" as a verdict. `check-overlaps.py` reconstructs every edge's route from its exit/entry points and waypoints, then reports any segment that crosses an unrelated box — exact verdicts for pinned orthogonal edges and for straight edges (diagonals included), conservative `WARN`s for auto-routed ones, `ARROW` flags for arrowheads that graze a border sideways, and `LABEL` advisories for edge labels whose estimated box lands on an unrelated vertex or another label (the failure the export can turn into silently dropped text). It resolves container-relative coordinates, and it refuses compressed files rather than passing them unchecked. `CLEAN` on every page is the exit condition; the eyeball is only trusted with what geometry cannot check (direction of arrows, truncated titles, margins).
 
 ## One file, many pages
 
