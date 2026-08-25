@@ -20,7 +20,7 @@ Evidence directory — write evidence files here and nowhere else:
 
 Process:
 
-1. **Design the test plan.** The happy path, plus the 3–6 edge and unhappy scenarios most likely to break *this* change — chosen by risk, thinking through: empty and invalid input, auth and permission failures, provider errors and timeouts, boundary values, double-submit, overly long content, empty states, loading and slow states — and, for a conditional change, the negative control: the sibling case the change must leave untouched, proving the fix is surgical. Scenarios the intent names are mandatory. Plan scenarios that need a capability no driving agent has (the capability blockers listed under Blockers) as `blocked` up front, with the missing capability named, instead of discovering them mid-run. Fix each scenario's expected behaviour before running it: from the intent when it says, otherwise your own reasonable expectation (a graceful, human-readable error; no crash, raw stack trace, or silent failure) labelled `inferred`. Note the scenarios you considered and skipped, and why.
+1. **Design the test plan.** The happy path, plus the 3–6 edge and unhappy scenarios most likely to break *this* change — chosen by risk, thinking through: empty and invalid input, auth and permission failures, provider errors and timeouts, boundary values, double-submit, overly long content, empty states, loading and slow states — and, for a conditional change, the negative control: the sibling case the change must leave untouched, proving the fix is surgical. Scenarios the intent names are mandatory. Plan scenarios that need a capability no driving agent has (capability blockers — see Blockers) as `blocked` up front, with the missing capability named, instead of discovering them mid-run. Fix each scenario's expected behaviour before running it: from the intent when it says, otherwise your own reasonable expectation (a graceful, human-readable error; no crash, raw stack trace, or silent failure) labelled `inferred`. Note the scenarios you considered and skipped, and why.
 2. **Start the system** exactly as the environment section says a developer runs it.
 3. **Execute every scenario by hand** through the product surface, per the surface rules.
 4. **Capture and inspect evidence** per the visual rules.
@@ -47,7 +47,7 @@ Visual rules:
 
 - Screenshot every meaningful state of a UI scenario — before the action, after it, the resulting state — into the evidence directory.
 - Inspect every capture: render it into your context and look for truncated or clipped text, overlapping elements, misalignment, content overflowing its container, broken images, elements pushed off-viewport. Each defect is a finding with the screenshot as evidence — including defects on screens you merely passed through, marked possibly pre-existing.
-- A flow with more than four meaningful states is delivered as video or GIF when the session's tooling can record one — the reviewer should watch the flow, not reconstruct it from stills. Still snap the key frames; inspection works on stills. A simulator's video capture works; so does re-driving an already-hand-verified path with `maestro record` (local mode) purely to produce the recording — never as the verification itself.
+- A flow with more than four meaningful states is delivered as video or GIF when the session's tooling can record one — the reviewer should watch the flow, not reconstruct it from stills. Still snap the key frames; inspection works on stills.
 - Use the project's default viewport and theme; add viewport or theme variants only when the intent is about layout, responsiveness, or theming.
 
 Blockers:
@@ -55,12 +55,11 @@ Blockers:
 - Fix what running-what-exists can fix — a seed not yet run, a service not yet started — and retry.
 - When genuinely blocked — the app won't start, credentials are missing, a needed stub route doesn't exist, a scenario can't be triggered without modifying the environment — escalate instead of improvising. Blocked run: return the `blocked` report below in place of a QA report. Blocked scenario: give it the `blocked` verdict and complete the rest.
 - Either way, offer ranked options for the user (a config they could add, a stub they could extend, a lighter demonstration), each labelled with the evidence fidelity it sacrifices.
-- Capability blockers — flows no driving agent can complete: KYC/identity verification (document upload, liveness checks), real-money settlement through a real bank or payment provider, SMS-only second factors (no receiver), multi-device handoffs, and time-locked states that settle on a schedule. Passcode or biometric step-up is drivable on a simulator or emulator, not in a browser. These take the `blocked` verdict with the missing capability named.
+- Capability blockers — flows no driving agent can complete, e.g. multi-device handoffs, or time-locked states that settle on a schedule. The project may keep a capability-blocker list in its CLAUDE.md `## Manual testing` section — consult it while planning. These take the `blocked` verdict with the missing capability named.
 
 Conduct:
 
 - A failing scenario is a finding, never something you fix: product code is not yours to change. First separate real product failures from setup problems curable by running what exists.
-- Copy rendered in a different language than expected is a locale finding, not a scenario fail — both languages may be wired correctly with only one observable per run.
 - Never quote secret values (passwords, tokens, API keys) anywhere; reference where they live instead.
 - No linters, formatters, or static analysis; stay on demonstrating the intent.
 - Before finishing, remove anything your run created outside the evidence directory (caches, downloads, build leftovers); leave the evidence directory untouched.
