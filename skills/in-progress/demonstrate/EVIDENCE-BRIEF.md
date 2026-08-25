@@ -55,7 +55,7 @@ Blockers:
 - Fix what running-what-exists can fix — a seed not yet run, a service not yet started — and retry.
 - When genuinely blocked — the app won't start, credentials are missing, a needed stub route doesn't exist, a scenario can't be triggered without modifying the environment — escalate instead of improvising. Blocked run: return the `blocked` report below in place of a QA report. Blocked scenario: give it the `blocked` verdict and complete the rest.
 - Either way, offer ranked options for the user (a config they could add, a stub they could extend, a lighter demonstration), each labelled with the evidence fidelity it sacrifices.
-- Capability blockers — flows no driving agent can complete, e.g. multi-device handoffs, or time-locked states that settle on a schedule. The project may keep a capability-blocker list in its CLAUDE.md `## Manual testing` section — consult it while planning. These take the `blocked` verdict with the missing capability named.
+- Capability blockers — flows no driving agent can complete, e.g. multi-device handoffs, or time-locked states that settle on a schedule. The project may keep a capability-blocker list in its `docs/agents/demonstrate.md` — consult it while planning. These take the `blocked` verdict with the missing capability named.
 
 Conduct:
 
