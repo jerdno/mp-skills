@@ -33,7 +33,7 @@ The demonstration runs in the project's existing local dev setup, exactly as a d
 
 - **Start.** The command that brings the system up locally when it isn't already running, including documented seed steps.
 - **Exercise.** How a human works the surface by hand — `curl` against which base URL; a browser at which URL, driven by which tool; which simulator or emulator and which scheme.
-- **Auth.** Whether the surface is auth-gated for local testing, and if gated, the working way past the gate: a seeded test user and where its credentials live, a token-minting command, a dev bypass flag. *Not gated* is an answer too — record it and the question never gets asked again.
+- **Auth.** Whether the surface is auth-gated for local testing, and if gated, the working way past the gate: a seeded test user and where its credentials live, a token-minting command, a dev bypass flag — including any second factor (which inbox or tool receives the OTP and how to read it). *Not gated* is an answer too — record it and the question never gets asked again.
 - **Wiring.** What the local setup is connected to, per provider: a sandbox tenant of the real service, a provider-official emulator, an existing stub config. The local env config already answers this (docker compose, `.env`, `application-local.yaml`) — read it there, and record only where to look, never a copy of its contents. The report states what the demo ran against, so the reviewer can weigh the evidence.
 
 Only chase answers the intent actually needs: a pure library change demonstrable with a scratch script has no auth question to ask.
