@@ -29,16 +29,15 @@ Process:
 Surfaces — how to exercise each by hand:
 
 - **API**: send real HTTP requests (`curl` or equivalent). The artifact is the verbatim exchange: method, URL, request body, response status, response body — secrets redacted. When the intent concerns persistence, also show the persisted state with a query against the dev database.
-- **Web UI**: drive a real browser interactively — the session's browser tools, or the `chrome-devtools-axi` CLI — one action at a time, reacting to what is actually on screen.
+- **Web UI**: drive a real browser interactively with the session's browser-driving tools, one action at a time, reacting to what is actually on screen.
 - **Mobile**: drive a simulator or emulator — the session's simulator tools, or `xcrun simctl` / `adb` directly.
-- **CLI**: run the real entry point; the transcript is the artifact.
 - **Library-only intent** (no human-reachable surface): a scratch script or REPL transcript calling the real code with real inputs, labelled as exactly that.
 - Discover what driving tools this session has before planning UI work. A surface you have no way to drive is a blocker — never a reason to fall back to a test script.
 
-Environment rules — use what exists, build nothing:
+Environment rules — take the environment as found:
 
 - Run the local dev setup exactly as wired: existing sandbox tenants, provider-official emulators, and stub configs the project already uses locally all count. Report what the demo actually ran against.
-- The environment is read-only. Run what exists — documented start, seed, and login flows — and author nothing: creating or editing a mock, stub, fixture, or config to make the demo work manufactures the very evidence you exist to gather.
+- Read-only applies to the system's behaviour, not its state. Never create or edit a mock, stub, or config to make the demo work — that manufactures the very evidence you exist to gather. Preparing state is fair QA: run the documented seed and login flows, and when none covers what a scenario needs, author a seeding script for test users or data that works through the real system or its dev database.
 - Production tenants, credentials, and surfaces are off-limits, always.
 - An action that would mutate shared persistent state (wiping a shared database, messaging a real address found in config) is a blocked scenario, not something to execute.
 - When the environment section names a user-approved workaround, mark every scenario and artifact that relies on it `degraded` — the reviewer must see which evidence carries reduced fidelity.

@@ -29,12 +29,12 @@ Completion criterion: an intent brief in end-user terms with its source named (f
 
 ### 2. Resolve the environment brief
 
-The demonstration runs in the project's existing local dev setup, exactly as a developer runs it — the evidence agent uses what exists and builds nothing, so everything it needs must be resolved here first. For each surface the intent touches — backend API, web UI, mobile app, CLI — four questions need answers before the evidence agent is dispatched:
+The demonstration runs in the project's existing local dev setup, exactly as a developer runs it — the evidence agent takes the environment as found, so everything it needs must be resolved here first. For each surface the intent touches — backend API, web UI, mobile app — four questions need answers before the evidence agent is dispatched:
 
 - **Start.** The command that brings the system up locally when it isn't already running, including documented seed steps.
-- **Exercise.** How a human works the surface by hand — `curl` against which base URL; a browser at which URL, driven by which tool; which simulator or emulator and which scheme; which binary.
+- **Exercise.** How a human works the surface by hand — `curl` against which base URL; a browser at which URL, driven by which tool; which simulator or emulator and which scheme.
 - **Auth.** Whether the surface is auth-gated for local testing, and if gated, the working way past the gate: a seeded test user and where its credentials live, a token-minting command, a dev bypass flag. *Not gated* is an answer too — record it and the question never gets asked again.
-- **Wiring.** What the local setup is connected to, per provider: a sandbox tenant of the real service, a provider-official emulator, an existing stub config. The report states what the demo ran against, so the reviewer can weigh the evidence.
+- **Wiring.** What the local setup is connected to, per provider: a sandbox tenant of the real service, a provider-official emulator, an existing stub config. The local env config already answers this (docker compose, `.env`, `application-local.yaml`) — read it there, and record only where to look, never a copy of its contents. The report states what the demo ran against, so the reviewer can weigh the evidence.
 
 Only chase answers the intent actually needs: a pure library change demonstrable with a scratch script has no auth question to ask.
 
@@ -51,9 +51,9 @@ Every answer found below rung 1 gets **recorded** in the project's CLAUDE.md und
 ## Manual testing
 
 - **API**: `pnpm dev` serves http://localhost:3000; exercise with `curl`.
-- **Web UI**: drive http://localhost:3000 with the session's browser tools (`chrome-devtools-axi` works here).
+- **Web UI**: drive http://localhost:3000 with the session's browser tools.
 - **Auth**: gated; log in as the seeded user from `pnpm db:seed` — credentials in `.env.local` (`TEST_USER_EMAIL` / `TEST_USER_PASSWORD`).
-- **Wiring**: auth is a real Auth0 dev tenant; payments hit Stripe test mode; email lands in the local Mailpit container.
+- **Wiring**: `docker-compose.yml` and `.env.local` name each provider connection.
 ```
 
 Condense the answers into an **environment brief**: per touched surface, the start command, exercise recipe, auth method, and wiring.
@@ -89,4 +89,4 @@ The demonstration is delivered as an HTML report the user can review scenario by
 - When a finding reports that the recorded environment knowledge failed — the documented auth method no longer works, the entry point moved — get the correction from the user and update the `## Manual testing` record before finishing, so the record heals instead of rotting.
 - The evidence directory is ephemeral by design: the session is the delivery surface, and the OS reclaims the temp dir on its own schedule. Nothing is copied into the repo, the PR, or a ticket; no cleanup step exists.
 
-Completion criterion: the HTML report delivered with every scenario and artifact in it, and the chat summary sent with all findings relayed — no evidence left stranded in the subagent.
+Completion criterion: the HTML report delivered with every scenario, artifact, and finding in it — no evidence left stranded in the subagent.
