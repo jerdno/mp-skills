@@ -20,7 +20,7 @@ Evidence directory — write evidence files here and nowhere else:
 
 Process:
 
-1. **Design the test plan.** The happy path, plus the 3–6 edge and unhappy scenarios most likely to break *this* change — chosen by risk, thinking through: empty and invalid input, auth and permission failures, provider errors and timeouts, boundary values, double-submit, overly long content, empty states, loading and slow states. Scenarios the intent names are mandatory. Fix each scenario's expected behaviour before running it: from the intent when it says, otherwise your own reasonable expectation (a graceful, human-readable error; no crash, raw stack trace, or silent failure) labelled `inferred`. Note the scenarios you considered and skipped, and why.
+1. **Design the test plan.** The happy path, plus the 3–6 edge and unhappy scenarios most likely to break *this* change — chosen by risk, thinking through: empty and invalid input, auth and permission failures, provider errors and timeouts, boundary values, double-submit, overly long content, empty states, loading and slow states — and, for a conditional change, the negative control: the sibling case the change must leave untouched, proving the fix is surgical. Scenarios the intent names are mandatory. Plan scenarios that need a capability no driving agent has (capability blockers — see Blockers) as `blocked` up front, with the missing capability named, instead of discovering them mid-run. Fix each scenario's expected behaviour before running it: from the intent when it says, otherwise your own reasonable expectation (a graceful, human-readable error; no crash, raw stack trace, or silent failure) labelled `inferred`. Note the scenarios you considered and skipped, and why.
 2. **Start the system** exactly as the environment section says a developer runs it.
 3. **Execute every scenario by hand** through the product surface, per the surface rules.
 4. **Capture and inspect evidence** per the visual rules.
@@ -30,9 +30,10 @@ Surfaces — how to exercise each by hand:
 
 - **API**: send real HTTP requests (`curl` or equivalent). The artifact is the verbatim exchange: method, URL, request body, response status, response body — secrets redacted. When the intent concerns persistence, also show the persisted state with a query against the dev database.
 - **Web UI**: drive a real browser interactively with the session's browser-driving tools, one action at a time, reacting to what is actually on screen.
-- **Mobile**: drive a simulator or emulator — the session's simulator tools, or `xcrun simctl` / `adb` directly.
+- **Mobile**: drive a simulator or emulator — the session's simulator tools, or `adb` on Android. Plain `xcrun simctl` can't inject touches on iOS; without a touch-capable driver (e.g. Maestro run one command at a time), the surface counts as undrivable — a blocker.
 - **Library-only intent** (no human-reachable surface): a scratch script or REPL transcript calling the real code with real inputs, labelled as exactly that.
 - Discover what driving tools this session has before planning UI work. A surface you have no way to drive is a blocker — never a reason to fall back to a test script.
+- Start each UI run from a clean session, preferring the app's own log-out control, and after signing in verify the displayed identity matches the account you used — a stale session silently tests as the wrong user.
 
 Environment rules — take the environment as found:
 
@@ -54,6 +55,7 @@ Blockers:
 - Fix what running-what-exists can fix — a seed not yet run, a service not yet started — and retry.
 - When genuinely blocked — the app won't start, credentials are missing, a needed stub route doesn't exist, a scenario can't be triggered without modifying the environment — escalate instead of improvising. Blocked run: return the `blocked` report below in place of a QA report. Blocked scenario: give it the `blocked` verdict and complete the rest.
 - Either way, offer ranked options for the user (a config they could add, a stub they could extend, a lighter demonstration), each labelled with the evidence fidelity it sacrifices.
+- Capability blockers — flows no driving agent can complete, e.g. multi-device handoffs, or time-locked states that settle on a schedule. The project may keep a capability-blocker list in its `docs/agents/demonstrate.md` — consult it while planning. These take the `blocked` verdict with the missing capability named.
 
 Conduct:
 
