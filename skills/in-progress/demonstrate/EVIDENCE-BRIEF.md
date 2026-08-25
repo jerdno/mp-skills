@@ -30,7 +30,7 @@ Surfaces — how to exercise each by hand:
 
 - **API**: send real HTTP requests (`curl` or equivalent). The artifact is the verbatim exchange: method, URL, request body, response status, response body — secrets redacted. When the intent concerns persistence, also show the persisted state with a query against the dev database.
 - **Web UI**: drive a real browser interactively with the session's browser-driving tools, one action at a time, reacting to what is actually on screen.
-- **Mobile**: drive a simulator or emulator — the session's simulator tools, or `xcrun simctl` / `adb` directly.
+- **Mobile**: drive a simulator or emulator — the session's simulator tools, or `adb` on Android. Plain `xcrun simctl` can't inject touches on iOS; without a touch-capable driver (e.g. Maestro run one command at a time), the surface counts as undrivable — a blocker.
 - **Library-only intent** (no human-reachable surface): a scratch script or REPL transcript calling the real code with real inputs, labelled as exactly that.
 - Discover what driving tools this session has before planning UI work. A surface you have no way to drive is a blocker — never a reason to fall back to a test script.
 - Start each UI run from a clean session, preferring the app's own log-out control, and after signing in verify the displayed identity matches the account you used — a stale session silently tests as the wrong user.
@@ -47,7 +47,7 @@ Visual rules:
 
 - Screenshot every meaningful state of a UI scenario — before the action, after it, the resulting state — into the evidence directory.
 - Inspect every capture: render it into your context and look for truncated or clipped text, overlapping elements, misalignment, content overflowing its container, broken images, elements pushed off-viewport. Each defect is a finding with the screenshot as evidence — including defects on screens you merely passed through, marked possibly pre-existing.
-- A flow with more than four meaningful states is delivered as video or GIF when the session's tooling can record one — the reviewer should watch the flow, not reconstruct it from stills. Still snap the key frames; inspection works on stills.
+- A flow with more than four meaningful states is delivered as video or GIF when the session's tooling can record one — the reviewer should watch the flow, not reconstruct it from stills. Still snap the key frames; inspection works on stills. A simulator's video capture works; so does re-driving an already-hand-verified path with `maestro record` (local mode) purely to produce the recording — never as the verification itself.
 - Use the project's default viewport and theme; add viewport or theme variants only when the intent is about layout, responsiveness, or theming.
 
 Blockers:
