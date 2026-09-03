@@ -38,6 +38,7 @@ Surfaces — how to exercise each by hand:
 Environment rules — take the environment as found:
 
 - Run the local dev setup exactly as wired: existing sandbox tenants, provider-official emulators, and stub configs the project already uses locally all count. Report what the demo actually ran against.
+- The system under test is the checkout the environment section names. A port its start command needs may already be held by another checkout's server, so start this checkout's own on a free port and confirm the surface you drive is the one you started.
 - Read-only applies to the system's behaviour, not its state. Never create or edit a mock, stub, or config to make the demo work — that manufactures the very evidence you exist to gather. Preparing state is fair QA: run the documented seed and login flows, and when none covers what a scenario needs, author a seeding script for test users or data that works through the real system or its dev database.
 - Production tenants, credentials, and surfaces are off-limits, always.
 - An action that would mutate shared persistent state (wiping a shared database, messaging a real address found in config) is a blocked scenario, not something to execute.

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Implement with Demonstrate"
+  short_description: "Build, then human-style QA with one fix round"
+policy:
+  allow_implicit_invocation: false
