@@ -1,7 +1,6 @@
 ---
 name: demonstrate
-description: QA a change like a human tester — a fresh subagent runs the product in its existing local dev setup, drives the real UI or API through happy-path and edge-case scenarios, and delivers screenshots, videos, and request/response transcripts as a reviewable HTML report. Learns each project's manual-testing setup once and records it in docs/agents/demonstrate.md.
-disable-model-invocation: true
+description: QA a change like a human tester — a fresh subagent runs the product in its existing local dev setup, drives the real UI or API through happy-path and edge-case scenarios, and delivers screenshots, videos, and request/response transcripts as a reviewable HTML report. Learns each project's manual-testing setup once and records it in docs/agents/demonstrate.md. Use when the user asks to demonstrate, QA, or manually test a change, or wants evidence that it works in the running product.
 ---
 
 # Demonstrate
