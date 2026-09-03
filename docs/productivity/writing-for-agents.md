@@ -27,7 +27,7 @@ Once you think in these two loads, most authoring decisions — split or don't, 
 - **Information hierarchy** — the ladder from in-file step, to in-file reference, to disclosed reference behind a pointer. **[Progressive disclosure](https://www.aihero.dev/ai-coding-dictionary/progressive-disclosure)** is the move down that ladder so the top stays legible.
 - **Completion criteria** — the clarity and demand of each step's done-condition, and the **legwork** that demand drives; the defence against **premature completion**.
 - **Leading words** — a compact concept already in the model's pretraining (*tight*, *red*, *tracer bullet*) that the agent thinks with while running the document. It anchors twice: execution in the body, invocation in the pointer.
-- **Pruning** — single source of truth, relevance, and the no-op test applied sentence by sentence, against **duplication**, **sediment** and **sprawl**.
+- **Pruning** — single source of truth, relevance, and the no-op test applied sentence by sentence, against **duplication**, **sediment** and **sprawl**. [Parametric knowledge](https://www.aihero.dev/ai-coding-dictionary/parametric-knowledge) counts as a source of truth alongside the codebase and its config, so what earns its place is the **delta** from the model's priors rather than the public knowledge it already holds.
 
 ## Common questions
 
@@ -39,6 +39,9 @@ The other way round. You are the author; the agent is the reader. That is the wh
 
 **Can't I just ask the agent to write it for me?**
 You can, and it will produce something verbose. Left alone the model explains what it already knows, and it will not apply the no-op test or reach for a leading word on its own. Use the reference on the draft — a review pass is where most of its value lands.
+
+**The agent documents things it must already know from training. Does the reference catch that?**
+Yes — it is the no-op test's largest catch. Parametric knowledge is a source of truth like any other, so a passage explaining a widely-documented tool, protocol or language caches a lookup that was already free and pays context for it every run. What earns its place is the **delta** from the model's priors: the version whose behaviour changed, the fact its cutoff makes stale, the local convention that contradicts the common one, the pick between two conventions it holds equally. The rule is not that public knowledge is banned — it is that you write only where your world diverges from what the model already holds.
 
 **I asked an agent to trim a document and it cut the functionality.**
 Agents told to "streamline" optimise for length, because length is the thing they can see. The no-op test is behavioural, not aesthetic: delete the line and ask whether the agent's behaviour changed. When a sentence fails, delete the whole sentence rather than trim words from it — and settle a disagreement about it by running the document, not by arguing.
@@ -64,6 +67,7 @@ No — finding the word that packs the most behaviour into the fewest [tokens](h
 - You can point at a leading word and watch it doing work in more than one place.
 - Nothing is stated twice, in any form. Duplication is the most reliable sign a document was never tested.
 - Reference that only one branch needs sits behind a pointer rather than in the main file.
+- Nothing in it teaches the agent something it already knew — every fact is local, versioned, or a correction.
 
 ## Where it fits
 
