@@ -16,8 +16,6 @@ The delta for Confluence pages. The voice and the tests live in [`SKILL.md`](SKI
 - **Decision**: Background, then Options considered (pros and cons per option, a table when there are more than two), then the Decision in bold with the reason in the same sentence ("Decision: one project - we do not want to overcomplicate the pilot setup, and migrating later is possible"), then what follows from it. Rationale for a design goes under question headings ("Why two layers?", "Why a single Lambda?"), each answered in two or three bullets.
 - **Comparison or evaluation**: what was compared and the decision factors first, then one table with one row per feature and one column per option, cells short (Yes, No, Partially plus a few words) and a notes column for the nuance. Strengths and weaknesses per option as bullets after the table.
 - **How-to or setup**: numbered steps, one action per step, "(Optional)" prefixed where a step can be skipped, a screenshot where the UI matters, the gotcha you hit as a note panel next to the step that triggers it.
-- **Pitfalls or lessons learned**: one H2 per issue named plainly, the body is what happens and why it matters, then the resolution or workaround on its own line or as an H3.
-- **Project or case study**: reuse the space's existing template (description, scope, roles, ways of working, milestones, tech stack, challenges, lessons learned) and its internal-document note; fill only the sections that have content.
 
 ## Panels and macros
 
@@ -26,7 +24,6 @@ The delta for Confluence pages. The voice and the tests live in [`SKILL.md`](SKI
 - **Warning**: only when acting on the page without reading it causes damage.
 - **Expand**: reference blocks most readers skip (requirement lists, entity fields, long configuration examples).
 - **Code**: configuration, JSON, commands, queries.
-- **Status** lozenges live in the properties table at the top of decision and project pages.
 - Icons only in yes/no table cells.
 
 Produce the panels in whatever the target tool takes: markdown callouts for a paste, storage-format macros for the API.
