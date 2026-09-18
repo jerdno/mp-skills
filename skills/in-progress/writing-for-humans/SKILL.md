@@ -17,14 +17,14 @@ This file carries the voice and the tests every medium shares. Read the medium f
 1. **Fix the reader.** Name who reads this and what they will do with it, then pick the register (below). If the audience is unclear and the two registers would differ, ask one question; otherwise ask nothing. Done when you can say in one line who reads it and what they do next.
 2. **Collect what the reader needs.** The facts, the decision and its reason, the open questions with the assumption you work under, the next step and its owner, the ask. Done when every item traces to something the reader will decide or do.
 3. **Draft** in the voice below and in the medium's shape.
-4. **Pass line by line, three tests.** _Known_: do we actually know it, or is it a feeling, a generic truth, or a claim we cannot back? _Needed_: does this reader need it to decide or act, or do they already have it? _Once_: is it already said elsewhere in the text? A line that fails is cut, turned into a marked assumption, or replaced by a link. The usual casualty is **over-reporting**: detail nobody asked for, a metric for its own sake, a section because a template had one. Last, read it once as the recipient and remove what would make them suspect a model wrote it: a word from the table, a summary that repeats the body, a closing that offers help instead of asking for something, a list of exactly three. Done when every line passes and the text ends on the ask or the next step.
+4. **Pass line by line, three tests.** _Known_: do we actually know it, or is it a feeling, a generic truth, or a claim we cannot back? _Needed_: does this reader need it to decide or act, or do they already have it? _Once_: is it already said elsewhere in the text? A line that fails is cut, turned into a marked assumption, or replaced by a link. The usual casualty is **over-reporting**: detail nobody asked for, a metric for its own sake, a section because a template had one. Last, read it once as the recipient and remove what would make them suspect a model wrote it: a word from one of the table's categories, a summary that repeats the body, a closing that offers help instead of asking for something, a list of exactly three. Done when every line passes and the text ends on the ask or the next step.
 5. **Return the text ready to paste**, nothing before or after it. The exception is a user who asked for options or for what changed.
 
 Rewriting an existing draft is the same loop with step 3 replaced: keep its facts, drop its framing, and reshape it into the medium's shape.
 
 ## The voice
 
-- Everyday words: use, help, many, if, because, also. The verb is "is" or "has". A sentence starts at its subject. A word that grades importance is replaced by the fact or the number it stands for, a promotional adjective by the neutral description, and a metaphor noun by the concrete thing. The precise technical term where one exists, and the same word for the same thing throughout. The word table below is the checklist for the line-by-line pass.
+- Everyday words: use, help, many, if, because, also. The verb is "is" or "has". A sentence starts at its subject. A word that grades importance is replaced by the fact or the number it stands for, a promotional adjective by the neutral description, and a metaphor noun by the concrete thing. The precise technical term where one exists, and the same word for the same thing throughout. The word categories below are the checklist for the line-by-line pass.
 - One idea per sentence. A qualifier goes in parentheses (unless descoped), a separated thought gets a comma or a new sentence, the dash is a spaced hyphen ( - ), and a colon introduces a list, an example or a TLDR. A colon used as a connector ("The reason is simple: the API is down") becomes a comma or a new sentence ("The API is down, so...").
 - Facts stated flat, without hedging. Opinions and guesses carry one marker per claim, "imo", "afaik", "probably" or "my assumption is", then the claim stated flat; "could potentially possibly" is "probably". Unknowns named as unknowns: "I don't know yet", "not sure here", "correct me if I'm wrong".
 - Concrete over abstract: the number, the ID, the name, the date, the link. "-8 MD engi and -1 MD devops, so -9 MDs in total" rather than "significant savings".
@@ -44,14 +44,14 @@ Rewriting an existing draft is the same loop with step 3 replaced: keep its fact
 
 ### Words that go
 
-Each line names what an AI draft reaches for and what replaces it. The replacement is the rule; the left column makes the pass checkable.
+Each row is a category of word an AI draft reaches for, a few examples of it, and what replaces it. The category is the rule and the examples are there to recognise it by: a word that belongs to a category goes, and takes that category's replacement, whether or not the table lists it. So "paramount" goes the way "crucial" does, and "game-changing" the way "groundbreaking" does. The pass asks of each word which category it falls in.
 
-| Category | What goes | What replaces it |
+| Category | Examples | What replaces it |
 | --- | --- | --- |
 | Grading words | significant, crucial, critical, key, pivotal, robust, seamless, comprehensive, powerful, essential | the fact or the number the word stands for; if there is none, the word alone goes |
 | Puffery phrases | a testament to, a pivotal moment, the evolving landscape, sets the stage for, plays a vital role, deeply rooted, at the forefront | what happened, in one plain sentence |
 | Promotional adjectives | groundbreaking, cutting-edge, innovative, state-of-the-art, renowned, vibrant, stunning, best-in-class | the neutral description of what it is or does |
-| Fancy verbs | leverage, utilize, facilitate, delve, showcase, underscore, foster, enhance, streamline, ensure, empower | use, use, help, look at, show, stress, help, improve, simplify, make sure, let |
+| Fancy verbs | leverage, utilize, facilitate, delve, showcase, underscore, foster, enhance, streamline, ensure, empower | the everyday verb for the action: use, help, look at, show, stress, improve, simplify, make sure, let |
 | "Is" substitutes | serves as, stands as, acts as, boasts, features, represents | is, has |
 | Connectives and fillers | additionally, furthermore, moreover, in order to, it is important to note that, it is worth noting, needless to say | also, to, or nothing |
 | Metaphor nouns | north star, flywheel, substrate, wedge, vector, journey, ecosystem, landscape (abstract), paradigm | the concrete thing: the goal, the loop, the base, the way, the market, the systems |
