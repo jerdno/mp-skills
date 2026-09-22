@@ -23,9 +23,11 @@ Establish what success means from the first source that yields it. A rung whose 
 
 Condense the result into an **intent brief**: the behaviour to demonstrate, phrased in end-user terms, any must-try scenarios the user named, plus optional where-to-look hints — hints, not boundaries.
 
+A design the source links — a Figma frame, a mockup image, a before/after pair — is part of the intent: it says how the screens it shows should look. Carry the links into the brief; for a before/after pair, spell out the expectation it implies: the screen state in *before* now renders as *after*.
+
 **Skip-guard:** when the intent names nothing runtime-observable — documentation, comments, formatting — report that there is nothing to demonstrate and stop. Evidence is gathered, never fabricated.
 
-Completion criterion: an intent brief in end-user terms with its source named (flagged as inferred on rung 4), or a declared nothing-to-demonstrate.
+Completion criterion: an intent brief in end-user terms with its source named (flagged as inferred on rung 4) and every linked design carried, or a declared nothing-to-demonstrate.
 
 ### 2. Resolve the environment brief
 
@@ -75,7 +77,7 @@ Completion criterion: no `blocked` report or verdict left without a user decisio
 
 The demonstration is delivered as an HTML report the user can review scenario by scenario, plus a short chat summary.
 
-- **Render the report** with the `/lavish` skill when the session has it; otherwise hand-write a plain HTML page into the evidence directory and give the user its path. Either way it carries: the intent; what the demo ran against (`ran_against`, degraded labels included); a per-scenario table — expected vs. actual, the concrete steps, the verdict; screenshots embedded beside their scenarios; videos embedded or linked; request/response JSONs formatted; the findings.
+- **Render the report** with the `/lavish` skill when the session has it; otherwise hand-write a plain HTML page into the evidence directory and give the user its path. Either way it carries: the intent; what the demo ran against (`ran_against`, degraded labels included); a per-scenario table — expected vs. actual, the concrete steps, the verdict; screenshots embedded beside their scenarios, and beside the design view they were checked against when the artifacts hold one; videos embedded or linked; request/response JSONs formatted; the findings, each linking to the scenario that exposed it and the artifacts that show it.
 - **Summarise in chat**: relay `testing_summary` verbatim, the per-scenario verdict list, every finding, and where the report is.
 - When a finding reports that the recorded environment knowledge failed — the documented auth method no longer works, the entry point moved — get the correction from the user and heal the record before finishing, rather than leaving it to rot.
 - The evidence directory is ephemeral by design: the session is the delivery surface, and the OS reclaims the temp dir on its own schedule. Nothing is copied into the repo, the PR, or a ticket; no cleanup step exists.
