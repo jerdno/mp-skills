@@ -1,7 +1,6 @@
 ---
 name: demonstrate
-description: QA a change like a human tester — a fresh subagent runs the product in its existing local dev setup, drives the real UI or API through happy-path and edge-case scenarios, and delivers screenshots, videos, and request/response transcripts as a reviewable HTML report. Learns each project's manual-testing setup once and records it in docs/agents/demonstrate.md.
-disable-model-invocation: true
+description: QA a change like a human tester — a fresh subagent runs the product in its existing local dev setup, drives the real UI or API through happy-path and edge-case scenarios, and delivers screenshots, videos, and request/response transcripts as a reviewable HTML report. Learns each project's manual-testing setup once and records it in docs/agents/demonstrate.md. Use when the user asks to demonstrate, QA, or manually test a change, or wants evidence that it works in the running product.
 ---
 
 # Demonstrate
@@ -31,7 +30,7 @@ Completion criterion: an intent brief in end-user terms with its source named (f
 
 The demonstration runs in the project's existing local dev setup, exactly as a developer runs it — the evidence agent takes the environment as found, so everything it needs must be resolved here first. For each surface the intent touches — backend API, web UI, mobile app — four questions need answers before the evidence agent is dispatched:
 
-- **Start.** The command that brings the system up locally when it isn't already running, including documented seed steps.
+- **Start.** The command that brings the system up locally when it isn't already running, including documented seed steps, and the checkout to run it from when the work sits in a worktree rather than the main working copy.
 - **Exercise.** How a human works the surface by hand — `curl` against which base URL; a browser at which URL, driven by which tool; which simulator or emulator and which scheme.
 - **Auth.** Whether the surface is auth-gated for local testing, and if gated, the working way past the gate: a seeded test user and where its credentials live, a token-minting command, a dev bypass flag. *Not gated* is an answer too — record it and the question never gets asked again.
 - **Wiring.** What the local setup is connected to, per provider: a sandbox tenant of the real service, a provider-official emulator, an existing stub config. The local env config already answers this (docker compose, `.env`, `application-local.yaml`) — read it there, and record only where to look, never a copy of its contents. The report states what the demo ran against, so the reviewer can weigh the evidence.
@@ -47,7 +46,7 @@ Consult sources in order, stopping at the first that answers each question:
 
 Every answer found below rung 1 gets written into [the record](#the-record), so the next invocation self-serves at rung 1.
 
-Condense the answers into an **environment brief**: per touched surface, the start command, exercise recipe, auth method, and wiring.
+Condense the answers into an **environment brief**: the checkout to run from, then per touched surface the start command, exercise recipe, auth method, and wiring.
 
 Completion criterion: start, exercise, auth, and wiring answered for every surface the intent touches, and every newly-learned answer written into the record.
 
