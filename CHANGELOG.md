@@ -1,5 +1,26 @@
 # mattpocock-skills
 
+## 1.2.4
+
+### Patch Changes
+
+- [`97c918f`](https://github.com/mattpocock/skills/commit/97c918f8ec7bd4f1ef41070bc7d48937f7e7d06f) Thanks [@jerdno](https://github.com/jerdno)! - setup-matt-pocock-skills docs: list Jira as a supported issue tracker.
+
+  The skill has supported Jira (via `acli`) for a while, but the docs page still enumerated only GitHub, GitLab, local-markdown, and "other". Added Jira and `acli` to the tracker list, and noted that — unlike `gh`/`glab` — `acli` can't infer the project from `git remote`, so setup asks for the project key and site.
+
+- [`0772413`](https://github.com/mattpocock/skills/commit/0772413a7cac86565ed316865a4af56d51d8d13e) Thanks [@jerdno](https://github.com/jerdno)! - Jira issue-tracker template: lean ticket reads, native ADF authoring, and a Wayfinding operations section.
+
+  - **Lean reads.** "Read an issue" / "fetch the relevant ticket" no longer steer agents to `--fields '*all' --json` (~200 lines of avatar URLs and null custom fields on every read). The default is now the plain-text `view`; structured reads use an explicit `--fields "..." --json | jq` projection (a bare `--json` returns neither `labels` nor `parent`), with a `jq`-free fallback; `*all` remains only as a cautioned escape hatch.
+  - **Author ADF, not markdown.** Jira stores descriptions/comments as ADF, so pasted markdown renders literally. The template now tells agents to author ADF — always for descriptions, and for comments when formatted — with a minimal ADF primer.
+  - **Wayfinding operations.** Adds the `/wayfinder` mapping the GitHub/GitLab/local templates already carry: map = `Task` labelled `wayfinder:map` (ADF body), tickets = subtasks labelled `wayfinder:<type>`, native `is blocked by` blocking, the frontier query (per-item `view --fields issuelinks`, since `search` omits links), claim/resolve, and the parallel-safe map-body edit.
+
+- [`238e156`](https://github.com/mattpocock/skills/commit/238e15669b2b9bf273cbc7792127b6841353a01d) Thanks [@jerdno](https://github.com/jerdno)! - `writing-for-agents`: name parametric knowledge as a source of truth, so the no-op test catches expository lines and not just instructions.
+
+  - Add a **parametric knowledge** bullet to `Pruning`, beside the existing `environment` / `cache` one. The agent has already read the public web, so a passage explaining a widely-documented tool, protocol or language restates what it held before the run began. The keep-condition is the **delta** from the model's priors: the version whose behaviour changed, the fact the cutoff makes stale, the local convention that contradicts the common one, the pick between two conventions it holds equally. The leading word is the house term the dictionary and `teach` already use.
+  - Widen the **no-op** test from "an instruction the model already obeys by default" to any line the model does not need, so it grades facts as well as instructions. The docs page already claimed this lens — "it spends most of its words explaining what the model already knows" — while `SKILL.md` only ever applied it to instructions, and nobody runs a behavioural test on a paragraph that isn't phrased as one.
+  - `relevance` drops "mere exposition" from its examples, since the new bullet owns exposition — one meaning, one place.
+  - Re-sync the docs page: the **delta** in the `Pruning` lever, the question itself in `Common questions`, and a checkable tell in `It's working if`.
+
 ## 1.2.3
 
 ### Patch Changes
