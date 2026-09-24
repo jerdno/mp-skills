@@ -20,7 +20,7 @@ Evidence directory — write evidence files here and nowhere else:
 
 Process:
 
-1. **Design the test plan.** The happy path, plus the 3–6 edge and unhappy scenarios most likely to break *this* change — chosen by risk, thinking through: empty and invalid input, auth and permission failures, provider errors and timeouts, boundary values, double-submit, overly long content, empty states, loading and slow states — and, for a conditional change, the negative control: the sibling case the change must leave untouched, proving the fix is surgical. Scenarios the intent names are mandatory. Plan scenarios that need a capability no driving agent has (capability blockers — see Blockers) as `blocked` up front, with the missing capability named, instead of discovering them mid-run. Fix each scenario's expected behaviour before running it: from the intent when it says, otherwise your own reasonable expectation (a graceful, human-readable error; no crash, raw stack trace, or silent failure) labelled `inferred`. Note the scenarios you considered and skipped, and why.
+1. **Design the test plan.** The happy path, plus the 3–6 edge and unhappy scenarios most likely to break *this* change — chosen by risk, thinking through: empty and invalid input, auth and permission failures, provider errors and timeouts, boundary values, double-submit, overly long content, empty states, loading and slow states — and, for a conditional change, the negative control: the sibling case the change must leave untouched, proving the fix is surgical. Add one adjacent flow: the nearby behaviour that shares a component, endpoint, or table with the change — the first thing to break by accident. Scenarios the intent names are mandatory. Plan scenarios that need a capability no driving agent has (capability blockers — see Blockers) as `blocked` up front, with the missing capability named, instead of discovering them mid-run. Fix each scenario's expected behaviour before running it: from the intent when it says, otherwise your own reasonable expectation (a graceful, human-readable error; no crash, raw stack trace, or silent failure) labelled `inferred`. A design the intent links says how a screen should look: open it with the session's design or image tools, compare copy, labels, and which elements appear in what order — that functional match is the standard — and save the view you compared against as an `image` artifact so the report can show it beside your screenshot. When nothing in the session opens the design, label those expectations `inferred` and report the unopened design as an `info` finding. Note the scenarios you considered and skipped, and why.
 2. **Start the system** exactly as the environment section says a developer runs it.
 3. **Execute every scenario by hand** through the product surface, per the surface rules.
 4. **Capture and inspect evidence** per the visual rules.
@@ -76,7 +76,7 @@ What the demo actually ran against: the dev setup used and each provider's wirin
 
 ## scenarios
 
-One entry per scenario: `name`; `expected` (with its source: intent | inferred); `steps` — the exact commands, requests, and UI actions, backticked; `actual`; `verdict` (pass | fail | questionable | blocked); `artifacts` (labels from the index). `questionable` means it works but a human would wince — say why. End with the scenarios you considered and skipped, one line of why each.
+One entry per scenario: `name`; `expected` (with its source: intent | inferred, naming the design view when that is the source); `steps` — the exact commands, requests, and UI actions, backticked; `actual`; `verdict` (pass | fail | questionable | blocked); `artifacts` (labels from the index). `questionable` means it works but a human would wince — say why. End with the scenarios you considered and skipped, one line of why each.
 
 ## artifacts
 
@@ -84,7 +84,7 @@ The index: `label`, `kind` (screenshot | video | gif | image | request-response 
 
 ## findings
 
-Actionable items only: functional defects, visual defects, blocked scenarios awaiting a decision, environment instructions that failed or were missing, degraded-evidence notes. Each: `severity` (error | warning | info), `file` and `line` where relevant, `description`. Passing scenarios are not findings. Empty when clean.
+Actionable items only: functional defects, visual defects, blocked scenarios awaiting a decision, environment instructions that failed or were missing, degraded-evidence notes. Each: `severity` (error | warning | info); `description`; `scenario` — the scenario that exposed it, or `passing-through` for a defect met on a screen you only crossed; `artifacts` — labels from the index that show it, at least one for every functional or visual defect; `file` and `line` where relevant. The bar: a developer with the finding, its scenario's steps, and its artifacts reproduces the defect in two minutes without asking you anything. Passing scenarios are not findings. Empty when clean.
 
 A blocked run returns instead:
 
