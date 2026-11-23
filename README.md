@@ -100,7 +100,7 @@ When the installer asks which skills to take, include `setup-matt-pocock-skills`
 
 In your agent, run it once per repo. It will:
 
-- Ask you which issue tracker you want to use (GitHub, GitLab, local files, or anything else you describe)
+- Ask you which issue tracker you want to use (GitHub, GitLab, Jira, local files, or anything else you describe)
 - Ask you what labels you apply to tickets when you triage them (`/triage` uses labels)
 - Ask you where you want to save any docs we create
 
