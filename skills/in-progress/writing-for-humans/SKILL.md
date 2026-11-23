@@ -1,6 +1,6 @@
 ---
 name: writing-for-humans
-description: Write or rewrite text a person will read - a Slack message, Confluence page, document or email - the way the user writes it: only what the reader needs, assumptions marked, one voice across media. Use when asked to write up, draft, post, reply, summarise for someone, or make an AI draft sound like them.
+description: "Write or rewrite text a person will read - a Slack message, Confluence page, document or email - the way the user writes it: only what the reader needs, assumptions marked, one voice across media. Use when asked to write up, draft, post, reply, summarise for someone, or make an AI draft sound like them."
 ---
 
 Write for a human reader the way the user writes: say what we know, mark what we assume, link what exists elsewhere, and stop. The reader is busy and already has context. Every line either helps them decide or act, or it goes.
