@@ -1,6 +1,6 @@
 ---
 name: drawio-diagrams
-description: Use when creating, editing, or cleaning up any draw.io diagram (.drawio file) — including C4 views (context, container, component) and AWS architecture diagrams — or when an existing diagram renders with overlapping labels, edges crossing boxes, or unreadable text. Covers layout craft and verification: edge routing that keeps labels readable, multi-page files, a geometric overlap checker, AWS icon lookup (official aws4 stencil names), and a render-and-inspect gate before claiming done. Layout, verification, and icon lookup — not XML basics or CLI export mechanics.
+description: "Use when creating, editing, or cleaning up any draw.io diagram (.drawio file) — including C4 views (context, container, component) and AWS architecture diagrams — or when an existing diagram renders with overlapping labels, edges crossing boxes, or unreadable text. Covers layout craft and verification: edge routing that keeps labels readable, multi-page files, a geometric overlap checker, AWS icon lookup (official aws4 stencil names), and a render-and-inspect gate before claiming done. Layout, verification, and icon lookup — not XML basics or CLI export mechanics."
 ---
 
 # Draw.io Diagrams
